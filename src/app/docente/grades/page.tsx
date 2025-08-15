@@ -15,6 +15,11 @@ interface Subject {
   name: string;
 }
 
+interface Classroom {
+  id: string;
+  name: string;
+}
+
 interface Student {
   id: string;
   name: string;
@@ -26,13 +31,24 @@ interface GradeInput {
   grade: number | '';
 }
 
+interface Grade {
+  id: string;
+  studentId: string;
+  subjectId: string;
+  academicCycleId: string;
+  trimester: number;
+  grade: number;
+}
+
 export default function DocenteGradesPage() {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeAcademicCycle, setActiveAcademicCycle] = useState<AcademicCycle | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [classrooms, setClassrooms] = useState<Classroom[]>([]);
   const [students, setStudents] = useState<Student[]>([]);
+  const [selectedClassroom, setSelectedClassroom] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
   const [selectedTrimester, setSelectedTrimester] = useState<number | ''>('');
   const [gradesInput, setGradesInput] = useState<GradeInput[]>([]);
@@ -73,18 +89,17 @@ export default function DocenteGradesPage() {
       })) as Subject[];
       setSubjects(fetchedSubjects);
 
-      // Fetch students (users with role ESTUDIANTE)
-      const qStudents = query(collection(db, 'users'), where('role', '==', 'ESTUDIANTE'));
-      const studentsSnapshot = await getDocs(qStudents);
-      const fetchedStudents = studentsSnapshot.docs.map(doc => ({
+      // Fetch classrooms
+      const qClassrooms = query(collection(db, 'classrooms'));
+      const classroomsSnapshot = await getDocs(qClassrooms);
+      const fetchedClassrooms = classroomsSnapshot.docs.map(doc => ({
         id: doc.id,
-        name: doc.data().name,
-        email: doc.data().email,
-      })) as Student[];
-      setStudents(fetchedStudents);
+        name: doc.data().name
+      })) as Classroom[];
+      setClassrooms(fetchedClassrooms);
 
-      // Initialize grades input for all students
-      setGradesInput(fetchedStudents.map(student => ({ studentId: student.id, grade: '' })));
+      // Initialize grades input for all students (will be updated by classroom selection)
+      setGradesInput([]);
 
     } catch (err: any) {
       console.error("Error fetching initial data:", err);
@@ -93,6 +108,94 @@ export default function DocenteGradesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchStudentsByClassroom = async () => {
+      if (!activeAcademicCycle || !selectedClassroom) {
+        setStudents([]);
+        setGradesInput([]);
+        return;
+      }
+
+      try {
+        // Fetch enrollments for the selected classroom and active academic cycle
+        const qEnrollments = query(
+          collection(db, 'classroom_enrollments'),
+          where('classroomId', '==', selectedClassroom),
+          where('academicCycleId', '==', activeAcademicCycle.id)
+        );
+        const enrollmentsSnapshot = await getDocs(qEnrollments);
+        const enrolledStudentIds = enrollmentsSnapshot.docs.map(doc => doc.data().studentId);
+
+        if (enrolledStudentIds.length === 0) {
+          setStudents([]);
+          setGradesInput([]);
+          return;
+        }
+
+        // Fetch student details for enrolled students
+        const qStudents = query(
+          collection(db, 'users'),
+          where('role', '==', 'ESTUDIANTE'),
+          where('__name__', 'in', enrolledStudentIds) // Use __name__ for document ID in 'in' query
+        );
+        const studentsSnapshot = await getDocs(qStudents);
+        const fetchedStudents = studentsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name,
+          email: doc.data().email,
+        })) as Student[];
+        setStudents(fetchedStudents);
+
+        // Initialize grades input for these students
+        setGradesInput(fetchedStudents.map(student => ({ studentId: student.id, grade: '' })));
+
+      } catch (err: any) {
+        console.error("Error fetching students by classroom:", err);
+        setError(err.message);
+      }
+    };
+
+    fetchStudentsByClassroom();
+  }, [activeAcademicCycle, selectedClassroom]);
+
+  useEffect(() => {
+    const fetchGrades = async () => {
+      if (!activeAcademicCycle || !selectedSubject || !selectedTrimester || students.length === 0) {
+        setGradesInput(students.map(student => ({ studentId: student.id, grade: '' })));
+        return;
+      }
+
+      try {
+        const qGrades = query(
+          collection(db, 'grades'),
+          where('academicCycleId', '==', activeAcademicCycle.id),
+          where('subjectId', '==', selectedSubject),
+          where('trimester', '==', selectedTrimester)
+        );
+        const gradesSnapshot = await getDocs(qGrades);
+        const fetchedGrades = gradesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        })) as Grade[];
+
+        const newGradesInput = students.map(student => {
+          const existingGrade = fetchedGrades.find(g => g.studentId === student.id);
+          return {
+            studentId: student.id,
+            grade: existingGrade ? existingGrade.grade : ''
+          };
+        });
+        setGradesInput(newGradesInput);
+
+      } catch (err: any) {
+        console.error("Error fetching grades:", err);
+        setError(err.message);
+      }
+    };
+
+    fetchGrades();
+  }, [activeAcademicCycle, selectedSubject, selectedTrimester, students]);
 
   const handleGradeChange = (studentId: string, value: string) => {
     setGradesInput(prev =>
@@ -106,8 +209,8 @@ export default function DocenteGradesPage() {
     e.preventDefault();
     setError(null);
 
-    if (!user || !activeAcademicCycle || !selectedSubject || !selectedTrimester) {
-      setError("Please select an academic cycle, subject, and trimester.");
+    if (!user || !activeAcademicCycle || !selectedClassroom || !selectedSubject || !selectedTrimester) {
+      setError("Please select an academic cycle, classroom, subject, and trimester.");
       return;
     }
 
@@ -165,6 +268,21 @@ export default function DocenteGradesPage() {
         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div>
+            <label htmlFor="classroom" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Classroom:</label>
+            <select
+              id="classroom"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
+              value={selectedClassroom}
+              onChange={(e) => setSelectedClassroom(e.target.value)}
+              required
+            >
+              <option value="">Select a Classroom</option>
+              {classrooms.map(classroom => (
+                <option key={classroom.id} value={classroom.id}>{classroom.name}</option>
+              ))}
+            </select>
+          </div>
           <div>
             <label htmlFor="subject" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Subject:</label>
             <select

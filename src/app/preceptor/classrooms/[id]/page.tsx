@@ -27,6 +27,7 @@ const ClassroomDetailPage = () => {
   const params = useParams();
   const classroomId = params.id as string;
   const { user } = useAuth();
+  console.log("Current user:", user);
 
   // State
   const [classroom, setClassroom] = useState<Classroom | null>(null);
@@ -62,6 +63,8 @@ const ClassroomDetailPage = () => {
         if (cycles.length > 0) {
             setSelectedCycleId(cycles[0].id);
         }
+        console.log("Fetched academic cycles:", cycles);
+        console.log("Selected cycle ID:", cycles.length > 0 ? cycles[0].id : "No cycles available");
     };
 
     const fetchStudents = async () => {
@@ -147,6 +150,9 @@ const ClassroomDetailPage = () => {
     }
   };
 
+  console.log("canManage:", canManage);
+  console.log("selectedCycleId:", selectedCycleId);
+
   if (loading) return <div className="text-center p-10 dark:text-gray-200">Cargando datos del aula...</div>;
   if (loadingError) return <div className="text-center p-10 text-red-500">{loadingError}</div>;
   if (!classroom) return <div className="text-center p-10 dark:text-gray-200">Aula no encontrada.</div>;
@@ -154,7 +160,7 @@ const ClassroomDetailPage = () => {
   return (
     <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100">
       <div className="mb-6">
-        <Link href="/admin/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a todas las aulas</Link>
+        <Link href="/preceptor/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a todas las aulas</Link>
         <h1 className="text-3xl font-bold mt-2">Aula: {classroom.name}</h1>
       </div>
       
@@ -168,14 +174,13 @@ const ClassroomDetailPage = () => {
                 value={selectedCycleId}
                 onChange={(e) => setSelectedCycleId(e.target.value)}
                 className="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
-                disabled={academicCycles.length === 0}
             >
                 {academicCycles.length > 0 ? (
                     academicCycles.map(cycle => (
                         <option key={cycle.id} value={cycle.id}>{cycle.name}</option>
                     ))
                 ) : (
-                    <option>No hay ciclos lectivos activos</option>
+                    <option value="" disabled>No hay ciclos lectivos activos</option>
                 )}
             </select>
         </div>
@@ -220,26 +225,7 @@ const ClassroomDetailPage = () => {
             </div>
         )}
 
-        {user && user.role === 'docente' && selectedCycleId && (
-            <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-3">Estudiantes Inscritos</h3>
-                <div className="h-96 overflow-y-auto border rounded-md p-2 bg-white dark:bg-gray-900 dark:border-gray-700">
-                    {enrolledInThisClass.length > 0 ? (
-                        <ul>
-                            {enrolledInThisClass.map(enrollment => (
-                                <li key={enrollment.id} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md">
-                                    <span>{enrollment.studentName}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-center text-gray-500 dark:text-gray-400 p-4">No hay estudiantes inscritos en esta aula para el ciclo seleccionado.</p>
-                    )}
-                </div>
-            </div>
-        )}
-
-      </div>
+        </div>
     </div>
   );
 };

@@ -15,11 +15,6 @@ export default function DocenteDashboard() {
             Manage Programs
           </button>
         </Link>
-        <Link href="/admin/classrooms">
-          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full">
-            View Classrooms
-          </button>
-        </Link>
       </div>
     </div>
   );

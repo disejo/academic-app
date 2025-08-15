@@ -14,11 +14,13 @@ export default function RegisterPage() {
   const [phone, setPhone] = useState('');
   const [role, setRole] = useState('ESTUDIANTE');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, password);
       await setDoc(doc(db, 'users', user.uid), {
@@ -30,6 +32,8 @@ export default function RegisterPage() {
       router.push('/login?message=User created successfully. Please log in.'); // Redirect to login after successful registration
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -101,8 +105,9 @@ export default function RegisterPage() {
           <button
             type="submit"
             className="bg-green-700 hover:bg-green-500 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full cursor-pointer"
+            disabled={loading}
           >
-            Register
+            {loading ? 'Registering...' : 'Register'}
           </button>
         </form>
         <p className="mt-4 text-center text-sm">

@@ -10,16 +10,20 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, email, password);
       router.push('/dashboard'); // Redirect to dashboard after successful login
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -54,8 +58,9 @@ export default function LoginPage() {
           <button
             type="submit"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full cursor-pointer"
+            disabled={loading}
           >
-            Login
+            {loading ? 'Logging in...' : 'Login'}
           </button>
         </form>
         <p className="mt-4 text-center text-sm">
