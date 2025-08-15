@@ -7,6 +7,7 @@ import { onAuthStateChanged } from 'firebase/auth';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useAuth } from '@/hooks/useAuth';
 
 interface AcademicCycle {
   id: string;
@@ -82,14 +83,6 @@ export default function DocenteGradesPage() {
         return;
       }
 
-      const qSubjects = query(collection(db, 'subjects'));
-      const subjectsSnapshot = await getDocs(qSubjects);
-      const fetchedSubjects = subjectsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name
-      })) as Subject[];
-      setSubjects(fetchedSubjects);
-
       const qClassrooms = query(collection(db, 'classrooms'));
       const classroomsSnapshot = await getDocs(qClassrooms);
       const fetchedClassrooms = classroomsSnapshot.docs.map(doc => ({
@@ -107,6 +100,37 @@ export default function DocenteGradesPage() {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchSubjectsByClassroom = async () => {
+      if (!selectedClassroom) {
+        setSubjects([]);
+        return;
+      }
+
+      try {
+        const q = query(collection(db, 'classroom_subjects'), where('classroomId', '==', selectedClassroom));
+        const querySnapshot = await getDocs(q);
+        const subjectIds = querySnapshot.docs.map(doc => doc.data().subjectId);
+
+        if (subjectIds.length > 0) {
+          const subjectsQuery = query(collection(db, 'subjects'), where('__name__', 'in', subjectIds));
+          const subjectsSnapshot = await getDocs(subjectsQuery);
+          const fetchedSubjects = subjectsSnapshot.docs.map(doc => ({
+            id: doc.id,
+            name: doc.data().name
+          })) as Subject[];
+          setSubjects(fetchedSubjects);
+        } else {
+          setSubjects([]);
+        }
+      } catch (error) {
+        console.error("Error fetching subjects by classroom: ", error);
+      }
+    };
+
+    fetchSubjectsByClassroom();
+  }, [selectedClassroom]);
 
   useEffect(() => {
     const fetchStudentsByClassroom = async () => {
