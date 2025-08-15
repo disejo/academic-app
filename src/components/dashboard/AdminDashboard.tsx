@@ -20,6 +20,11 @@ export default function AdminDashboard() {
             Manage Subjects
           </button>
         </Link>
+        <Link href="/admin/classrooms">
+          <button className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full">
+            Manage Classrooms
+          </button>
+        </Link>
         <Link href="/admin/student-promotion">
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
             Student Promotion
