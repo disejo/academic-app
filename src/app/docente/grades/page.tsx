@@ -2,8 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
-import { collection, getDocs, query, where, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, getDocs, query, where, addDoc, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface AcademicCycle {
   id: string;
@@ -23,12 +26,14 @@ interface Classroom {
 interface Student {
   id: string;
   name: string;
-  email: string;
+  dni?: string;
 }
 
 interface GradeInput {
   studentId: string;
-  grade: number | '';
+  trimester1: number | '';
+  trimester2: number | '';
+  trimester3: number | '';
 }
 
 interface Grade {
@@ -50,7 +55,6 @@ export default function DocenteGradesPage() {
   const [students, setStudents] = useState<Student[]>([]);
   const [selectedClassroom, setSelectedClassroom] = useState<string>('');
   const [selectedSubject, setSelectedSubject] = useState<string>('');
-  const [selectedTrimester, setSelectedTrimester] = useState<number | ''>('');
   const [gradesInput, setGradesInput] = useState<GradeInput[]>([]);
 
   useEffect(() => {
@@ -59,7 +63,6 @@ export default function DocenteGradesPage() {
         setUser(currentUser);
         fetchInitialData();
       } else {
-        // Redirect to login if not authenticated
         // router.push('/login');
       }
     });
@@ -69,18 +72,16 @@ export default function DocenteGradesPage() {
   const fetchInitialData = async () => {
     setLoading(true);
     try {
-      // Fetch active academic cycle
       const qCycle = query(collection(db, 'academicCycles'), where('isActive', '==', true));
       const cycleSnapshot = await getDocs(qCycle);
       if (!cycleSnapshot.empty) {
         setActiveAcademicCycle({ id: cycleSnapshot.docs[0].id, name: cycleSnapshot.docs[0].data().name });
       } else {
-        setError("No active academic cycle found. Please contact an administrator.");
+        setError("No se encontró un ciclo académico activo. Por favor, contacte a un administrador.");
         setLoading(false);
         return;
       }
 
-      // Fetch subjects
       const qSubjects = query(collection(db, 'subjects'));
       const subjectsSnapshot = await getDocs(qSubjects);
       const fetchedSubjects = subjectsSnapshot.docs.map(doc => ({
@@ -89,7 +90,6 @@ export default function DocenteGradesPage() {
       })) as Subject[];
       setSubjects(fetchedSubjects);
 
-      // Fetch classrooms
       const qClassrooms = query(collection(db, 'classrooms'));
       const classroomsSnapshot = await getDocs(qClassrooms);
       const fetchedClassrooms = classroomsSnapshot.docs.map(doc => ({
@@ -98,11 +98,10 @@ export default function DocenteGradesPage() {
       })) as Classroom[];
       setClassrooms(fetchedClassrooms);
 
-      // Initialize grades input for all students (will be updated by classroom selection)
       setGradesInput([]);
 
     } catch (err: any) {
-      console.error("Error fetching initial data:", err);
+      console.error("Error al cargar los datos iniciales:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -118,7 +117,6 @@ export default function DocenteGradesPage() {
       }
 
       try {
-        // Fetch enrollments for the selected classroom and active academic cycle
         const qEnrollments = query(
           collection(db, 'classroom_enrollments'),
           where('classroomId', '==', selectedClassroom),
@@ -133,25 +131,23 @@ export default function DocenteGradesPage() {
           return;
         }
 
-        // Fetch student details for enrolled students
         const qStudents = query(
           collection(db, 'users'),
           where('role', '==', 'ESTUDIANTE'),
-          where('__name__', 'in', enrolledStudentIds) // Use __name__ for document ID in 'in' query
+          where('__name__', 'in', enrolledStudentIds)
         );
         const studentsSnapshot = await getDocs(qStudents);
         const fetchedStudents = studentsSnapshot.docs.map(doc => ({
           id: doc.id,
           name: doc.data().name,
-          email: doc.data().email,
+          dni: doc.data().dni || 'N/A',
         })) as Student[];
         setStudents(fetchedStudents);
 
-        // Initialize grades input for these students
-        setGradesInput(fetchedStudents.map(student => ({ studentId: student.id, grade: '' })));
+        setGradesInput(fetchedStudents.map(student => ({ studentId: student.id, trimester1: '', trimester2: '', trimester3: '' })));
 
       } catch (err: any) {
-        console.error("Error fetching students by classroom:", err);
+        console.error("Error al cargar estudiantes por clase:", err);
         setError(err.message);
       }
     };
@@ -161,8 +157,8 @@ export default function DocenteGradesPage() {
 
   useEffect(() => {
     const fetchGrades = async () => {
-      if (!activeAcademicCycle || !selectedSubject || !selectedTrimester || students.length === 0) {
-        setGradesInput(students.map(student => ({ studentId: student.id, grade: '' })));
+      if (!activeAcademicCycle || !selectedSubject || students.length === 0) {
+        setGradesInput(students.map(student => ({ studentId: student.id, trimester1: '', trimester2: '', trimester3: '' })));
         return;
       }
 
@@ -170,8 +166,7 @@ export default function DocenteGradesPage() {
         const qGrades = query(
           collection(db, 'grades'),
           where('academicCycleId', '==', activeAcademicCycle.id),
-          where('subjectId', '==', selectedSubject),
-          where('trimester', '==', selectedTrimester)
+          where('subjectId', '==', selectedSubject)
         );
         const gradesSnapshot = await getDocs(qGrades);
         const fetchedGrades = gradesSnapshot.docs.map(doc => ({
@@ -180,79 +175,130 @@ export default function DocenteGradesPage() {
         })) as Grade[];
 
         const newGradesInput = students.map(student => {
-          const existingGrade = fetchedGrades.find(g => g.studentId === student.id);
+          const studentGrades = fetchedGrades.filter(g => g.studentId === student.id);
           return {
             studentId: student.id,
-            grade: existingGrade ? existingGrade.grade : ''
+            trimester1: studentGrades.find(g => g.trimester === 1)?.grade || '',
+            trimester2: studentGrades.find(g => g.trimester === 2)?.grade || '',
+            trimester3: studentGrades.find(g => g.trimester === 3)?.grade || '',
           };
         });
         setGradesInput(newGradesInput);
 
       } catch (err: any) {
-        console.error("Error fetching grades:", err);
+        console.error("Error al cargar las calificaciones:", err);
         setError(err.message);
       }
     };
 
     fetchGrades();
-  }, [activeAcademicCycle, selectedSubject, selectedTrimester, students]);
+  }, [activeAcademicCycle, selectedSubject, students]);
 
-  const handleGradeChange = (studentId: string, value: string) => {
+  const handleGradeChange = async (studentId: string, trimester: number, value: string) => {
+    const grade = value === '' ? '' : parseFloat(value);
     setGradesInput(prev =>
       prev.map(item =>
-        item.studentId === studentId ? { ...item, grade: value === '' ? '' : parseFloat(value) } : item
+        item.studentId === studentId ? { ...item, [`trimester${trimester}`]: grade } : item
       )
     );
-  };
 
-  const handleSubmitGrades = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-
-    if (!user || !activeAcademicCycle || !selectedClassroom || !selectedSubject || !selectedTrimester) {
-      setError("Please select an academic cycle, classroom, subject, and trimester.");
+    if (!user || !activeAcademicCycle || !selectedSubject) {
       return;
     }
 
     try {
-      const gradesToSave = gradesInput.filter(g => g.grade !== '').map(g => ({
-        studentId: g.studentId,
+      const gradeData = {
+        studentId,
         subjectId: selectedSubject,
         academicCycleId: activeAcademicCycle.id,
-        trimester: selectedTrimester,
-        grade: g.grade,
+        trimester,
+        grade,
         teacherId: user.uid,
-        createdAt: serverTimestamp(),
-      }));
+        updatedAt: serverTimestamp(),
+      };
 
-      if (gradesToSave.length === 0) {
-        setError("No grades to save.");
-        return;
+      const q = query(
+        collection(db, 'grades'),
+        where('studentId', '==', studentId),
+        where('subjectId', '==', selectedSubject),
+        where('academicCycleId', '==', activeAcademicCycle.id),
+        where('trimester', '==', trimester)
+      );
+      const querySnapshot = await getDocs(q);
+
+      if (!querySnapshot.empty) {
+        const docId = querySnapshot.docs[0].id;
+        await setDoc(doc(db, 'grades', docId), gradeData, { merge: true });
+      } else {
+        await addDoc(collection(db, 'grades'), { ...gradeData, createdAt: serverTimestamp() });
       }
-
-      // Use a batch write for efficiency if many grades are being saved
-      const batch = db.batch();
-      gradesToSave.forEach(grade => {
-        const newGradeRef = collection(db, 'grades').doc(); // Auto-generate ID
-        batch.set(newGradeRef, grade);
-      });
-      await batch.commit();
-
-      alert("Grades submitted successfully!");
-      // Optionally, clear grades input or refetch to show saved grades
-      setGradesInput(students.map(student => ({ studentId: student.id, grade: '' })));
-
     } catch (err: any) {
-      console.error("Error submitting grades:", err);
+      console.error("Error al guardar la calificación:", err);
       setError(err.message);
     }
   };
 
+  const calculateAverage = (grades: GradeInput) => {
+    const validGrades = [grades.trimester1, grades.trimester2, grades.trimester3].filter(g => g !== '') as number[];
+    if (validGrades.length === 0) return 'N/A';
+    const sum = validGrades.reduce((acc, grade) => acc + grade, 0);
+    return (sum / validGrades.length).toFixed(2);
+  };
+
+  const getSelectedClassName = () => classrooms.find(c => c.id === selectedClassroom)?.name || 'clase';
+  const getSelectedSubjectName = () => subjects.find(s => s.id === selectedSubject)?.name || 'asignatura';
+
+  const handleDownloadExcel = () => {
+    const data = students.map(student => {
+      const studentGrades = gradesInput.find(g => g.studentId === student.id);
+      return {
+        DNI: student.dni,
+        Estudiante: student.name,
+        Trimestre1: studentGrades?.trimester1 || '',
+        Trimestre2: studentGrades?.trimester2 || '',
+        Trimestre3: studentGrades?.trimester3 || '',
+        Promedio: studentGrades ? calculateAverage(studentGrades) : 'N/A',
+      };
+    });
+
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Calificaciones");
+    const fileName = `${getSelectedClassName()}-${getSelectedSubjectName()}.xlsx`;
+    XLSX.writeFile(wb, fileName);
+  };
+
+  const handleDownloadPdf = () => {
+    const doc = new jsPDF();
+    const tableColumn = ["DNI", "Estudiante", "T1", "T2", "T3", "Promedio"];
+    const tableRows: any[] = [];
+
+    students.forEach(student => {
+      const studentGrades = gradesInput.find(g => g.studentId === student.id);
+      const row = [
+        student.dni,
+        student.name,
+        studentGrades?.trimester1 || '',
+        studentGrades?.trimester2 || '',
+        studentGrades?.trimester3 || '',
+        studentGrades ? calculateAverage(studentGrades) : 'N/A',
+      ];
+      tableRows.push(row);
+    });
+
+    const title = `Calificaciones - ${getSelectedClassName()} - ${getSelectedSubjectName()}`;
+    doc.text(title, 14, 15);
+    autoTable(doc, { head: [tableColumn], body: tableRows, startY: 20 });
+    const fileName = `${getSelectedClassName()}-${getSelectedSubjectName()}.pdf`;
+    doc.save(fileName);
+  };
+
+
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading data...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Cargando datos...</div>;
   }
 
-  if (error && error.includes("No active academic cycle")) {
+  if (error && error.includes("No se encontró un ciclo académico activo")) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">
         {error}
@@ -263,13 +309,13 @@ export default function DocenteGradesPage() {
   return (
     <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">Enter Grades</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Ingresar Calificaciones</h1>
 
         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label htmlFor="classroom" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Classroom:</label>
+            <label htmlFor="classroom" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Clase:</label>
             <select
               id="classroom"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -277,14 +323,14 @@ export default function DocenteGradesPage() {
               onChange={(e) => setSelectedClassroom(e.target.value)}
               required
             >
-              <option value="">Select a Classroom</option>
+              <option value="">Seleccione una Clase</option>
               {classrooms.map(classroom => (
                 <option key={classroom.id} value={classroom.id}>{classroom.name}</option>
               ))}
             </select>
           </div>
           <div>
-            <label htmlFor="subject" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Subject:</label>
+            <label htmlFor="subject" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Asignatura:</label>
             <select
               id="subject"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -292,62 +338,80 @@ export default function DocenteGradesPage() {
               onChange={(e) => setSelectedSubject(e.target.value)}
               required
             >
-              <option value="">Select a Subject</option>
+              <option value="">Seleccione una Asignatura</option>
               {subjects.map(subject => (
                 <option key={subject.id} value={subject.id}>{subject.name}</option>
               ))}
             </select>
           </div>
-          <div>
-            <label htmlFor="trimester" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Trimester:</label>
-            <select
-              id="trimester"
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
-              value={selectedTrimester}
-              onChange={(e) => setSelectedTrimester(parseInt(e.target.value))}
-              required
-            >
-              <option value="">Select a Trimester</option>
-              <option value={1}>1st Trimester</option>
-              <option value={2}>2nd Trimester</option>
-              <option value={3}>3rd Trimester</option>
-            </select>
-          </div>
         </div>
 
         {activeAcademicCycle && (
-          <p className="mb-4 text-center text-lg font-medium">Active Academic Cycle: {activeAcademicCycle.name}</p>
+          <p className="mb-4 text-center text-lg font-medium">Ciclo Académico Activo: {activeAcademicCycle.name}</p>
         )}
 
-        <h2 className="text-xl font-semibold mb-4">Students and Grades</h2>
-        <form onSubmit={handleSubmitGrades}>
-          <div className="space-y-4 mb-6">
-            {students.length === 0 ? (
-              <p>No students found.</p>
-            ) : (
-              students.map((student) => (
-                <div key={student.id} className="flex items-center justify-between p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                  <p className="font-medium">{student.name} ({student.email})</p>
-                  <input
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="10"
-                    className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
-                    value={gradesInput.find(g => g.studentId === student.id)?.grade || ''}
-                    onChange={(e) => handleGradeChange(student.id, e.target.value)}
-                  />
-                </div>
-              ))
-            )}
+        {selectedSubject && (
+          <div>
+            <div className="flex justify-end space-x-4 mb-4">
+              <button onClick={handleDownloadExcel} className="text-2xl">📄</button>
+              <button onClick={handleDownloadPdf} className="text-2xl">📋</button>
+            </div>
+            <h2 className="text-xl font-semibold mb-4">Estudiantes y Calificaciones</h2>
+            <div className="space-y-4 mb-6">
+              {students.length === 0 ? (
+                <p>No se encontraron estudiantes.</p>
+              ) : (
+                students.map((student) => {
+                  const studentGrades = gradesInput.find(g => g.studentId === student.id);
+                  return (
+                    <div key={student.id} className="grid grid-cols-6 gap-4 items-center p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
+                      <p className="font-medium col-span-2">{student.name} ({student.dni})</p>
+                      <div className="flex items-center space-x-2">
+                        <input
+                        placeholder='T1'
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="10"
+                          className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
+                          value={studentGrades?.trimester1 || ''}
+                          onChange={(e) => handleGradeChange(student.id, 1, e.target.value)}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                        placeholder='T2'
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="10"
+                          className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
+                          value={studentGrades?.trimester2 || ''}
+                          onChange={(e) => handleGradeChange(student.id, 2, e.target.value)}
+                        />
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <input
+                        placeholder='T3'
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          max="10"
+                          className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
+                          value={studentGrades?.trimester3 || ''}
+                          onChange={(e) => handleGradeChange(student.id, 3, e.target.value)}
+                        />
+                      </div>
+                      <div className="text-center font-bold">
+                        Prom: {studentGrades ? calculateAverage(studentGrades) : 'N/A'}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
-          <button
-            type="submit"
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full cursor-pointer"
-          >
-            Submit Grades
-          </button>
-        </form>
+        )}
       </div>
     </div>
   );
