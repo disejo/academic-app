@@ -1,7 +1,11 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+   turbopack: {
+      resolveAlias: {
+        // Add any necessary aliases here if you're mapping '@mdi/js' to a different location
+      },
+    },
 };
 
 export default nextConfig;

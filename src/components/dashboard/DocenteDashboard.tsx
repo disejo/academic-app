@@ -9,9 +9,22 @@ import {AdditionalInformation} from './components/AdditionalInformation';
 import TotalStudents from './components/TotalStudents';
 import BetterAverage from './components/BetterAverage';
 
+import { useRouter } from 'next/navigation';
+
 export default function DocenteDashboard() {
   const [loading, setLoading] = useState(true);
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+
+  const handleClickGrades = async () => {
+    setLoading(true);
+    await router.push('/docente/grades');
+  };
+  const handleClickPrograms = async () => {
+    setLoading(true);
+    await router.push('/docente/programs');
+  };
+
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -39,7 +52,7 @@ export default function DocenteDashboard() {
   }
 
   return (
-    <div className="w-full p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
+    <div className="w-full mt-14 p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
       <h1 className="text-4xl font-bold mb-8 text-center">Panel de Docente</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <TotalStudents />
@@ -48,16 +61,24 @@ export default function DocenteDashboard() {
       <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md mb-8">
         <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Acciones del Docente</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Link href="/docente/grades" className="block">
-            <button className="cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300">
-              Ingresar Calificaciones
-            </button>
-          </Link>
-          <Link href="/docente/programs" className="block">
-            <button className="cursor-pointer bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300">
-              Gestionar Programas
-            </button>
-          </Link>
+          <button
+            onClick={handleClickGrades}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Ingresar Calificaciones'}
+          </button>
+
+          <button
+            onClick={handleClickPrograms}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Gestionar Programas'}
+          </button>
+
+
+
         </div>
       </div>
       <TopTenStudents />

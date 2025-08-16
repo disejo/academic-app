@@ -5,6 +5,10 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
+import Icon from '@mdi/react';
+import { mdiAccountSchoolOutline } from '@mdi/js';
+import { mdiLogout } from '@mdi/js';
+
 
 interface UserProfile {
   name: string;
@@ -18,6 +22,7 @@ export default function NavBoard() {
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
+    
 
     useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -52,17 +57,17 @@ export default function NavBoard() {
         }
     };
   
-    return (  
+    return (
         <>
-        <nav className="bg-white border-gray-200 dark:bg-gray-900">
+        <nav className="bg-white dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
             <Link href="/dashboard" rel="noopener noreferrer" className="flex items-center space-x-3 rtl:space-x-reverse">
-                <img src="/file.svg" className="h-8" alt="Flowbite Logo" />
-                <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white">Académica</span>
+                <Icon path={mdiAccountSchoolOutline} size={1} />
+                <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
             </Link>
             <div className="flex items-center space-x-6 rtl:space-x-reverse">
                 <span className="text-sm  text-gray-500 dark:text-white">Welcome, {userProfile?.name}!</span>
-                <button onClick={handleLogout} className="cursor-pointer text-sm  text-blue-600 dark:text-blue-500 hover:underline">Logout</button>
+                <button onClick={handleLogout} className="cursor-pointer text-sm  text-blue-600 dark:text-blue-500 hover:underline"><Icon path={mdiLogout} size={1} /></button>
             </div>
         </div>
         </nav>
