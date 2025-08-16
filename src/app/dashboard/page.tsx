@@ -80,11 +80,7 @@ export default function DashboardPage() {
 
   return (
     <>
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 dark:bg-gray-800">
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md text-center dark:bg-gray-900 dark:text-amber-50">
-        {renderDashboard()}
-      </div>
-    </div>
+      {renderDashboard()}
     </>
   );
 }
