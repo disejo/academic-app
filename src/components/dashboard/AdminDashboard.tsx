@@ -2,6 +2,7 @@ import Link from 'next/link';
 
 export default function AdminDashboard() {
   return (
+    <>
     <div className="mt-8">
       <h2 className="text-xl font-semibold mb-4">Admin Actions</h2>
       <div className="space-y-4">
@@ -46,5 +47,6 @@ export default function AdminDashboard() {
         </div>
       </div>
     </div>
+    </>
   );
 }

@@ -28,7 +28,7 @@ export default function UserManagementTable() {
       setLoading(true);
       setError(null);
       try {
-        let usersQuery = collection(db, 'users');
+        let usersQuery: any = collection(db, 'users');
         if (filterRole !== 'ALL') {
           usersQuery = query(usersQuery, where('role', '==', filterRole));
         }
@@ -39,7 +39,7 @@ export default function UserManagementTable() {
         })) as User[];
         setUsers(fetchedUsers);
       } catch (err: any) {
-        console.error("Error fetching users:", err);
+        console.error("Error al buscar usuarios:", err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -70,7 +70,7 @@ export default function UserManagementTable() {
       setUsers(users.map(u => u.id === user.id ? editingUser : u));
       setEditingUser(null);
     } catch (err: any) {
-      console.error("Error updating user:", err);
+      console.error("Error al actualizar el usuario:", err);
       setError(err.message);
     } finally {
       setLoading(false); // Unset loading
@@ -91,127 +91,127 @@ export default function UserManagementTable() {
   };
 
   return (
-    <div className="mt-10 p-8 bg-white rounded shadow-md w-full max-w-4xl dark:bg-gray-900 dark:text-gray-100">
-      <h2 className="text-2xl font-bold mb-6 text-center">Manage Users</h2>
+    <div className="w-full p-4 bg-white rounded-lg shadow-md dark:bg-gray-900 dark:text-gray-100">
+      <h2 className="text-3xl font-bold mb-6 text-center">Gestionar Usuarios</h2>
 
       <div className="mb-4">
-        <label htmlFor="roleFilter" className="block text-sm font-bold mb-2 dark:text-gray-300">Filter by Role:</label>
+        <label htmlFor="roleFilter" className="block text-sm font-bold mb-2 dark:text-gray-300">Filtrar por Rol:</label>
         <select
           id="roleFilter"
           className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
           value={filterRole}
           onChange={(e) => setFilterRole(e.target.value)}
         >
-          <option value="ALL">All Roles</option>
+          <option value="ALL">Todos los Roles</option>
           {roles.map(role => (
             <option key={role} value={role}>{role}</option>
           ))}
         </select>
       </div>
 
-      {loading && <p className="text-center text-blue-500">Loading users...</p>}
+      {loading && <p className="text-center text-blue-500">Cargando usuarios...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && users.length === 0 && !error && (
-        <p className="text-center text-gray-500">No users found.</p>
+        <p className="text-center text-gray-500">No se encontraron usuarios.</p>
       )}
 
       {!loading && users.length > 0 && (
         <div className="overflow-x-auto">
-          <table className="min-w-full bg-white dark:bg-gray-800">
-            <thead>
+          <table className="min-w-full bg-white dark:bg-gray-800 rounded-lg overflow-hidden">
+            <thead className="bg-gray-200 dark:bg-gray-700">
               <tr>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Name</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Email</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">DNI</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Phone</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Role</th>
-                <th className="py-2 px-4 border-b dark:border-gray-700">Actions</th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Nombre</th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">DNI</th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Teléfono</th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Rol</th>
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Acciones</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {users.map((user) => (
-                <tr key={user.id}>
+                <tr key={user.id} className="hover:bg-gray-100 dark:hover:bg-gray-700">
                   {editingUser?.id === user.id ? (
                     <>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <input
                           type="text"
                           name="name"
                           value={editingUser.name}
                           onChange={handleChange}
-                          className="w-full p-1 border rounded dark:bg-gray-700 dark:text-gray-100"
+                          className="w-full p-2 border rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500"
                         />
                       </td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <input
                           type="email"
                           name="email"
                           value={editingUser.email}
                           onChange={handleChange}
-                          className="w-full p-1 border rounded dark:bg-gray-700 dark:text-gray-100"
+                          className="w-full p-2 border rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500"
                         />
                       </td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <input
                           type="text"
                           name="dni"
                           value={editingUser.dni}
                           onChange={handleChange}
-                          className="w-full p-1 border rounded dark:bg-gray-700 dark:text-gray-100"
+                          className="w-full p-2 border rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500"
                         />
                       </td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <input
                           type="tel"
                           name="phone"
                           value={editingUser.phone}
                           onChange={handleChange}
-                          className="w-full p-1 border rounded dark:bg-gray-700 dark:text-gray-100"
+                          className="w-full p-2 border rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500"
                         />
                       </td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap">
                         <select
                           name="role"
                           value={editingUser.role}
                           onChange={handleChange}
-                          className="w-full p-1 border rounded dark:bg-gray-700 dark:text-gray-100"
+                          className="w-full p-2 border rounded dark:bg-gray-600 dark:text-gray-100 dark:border-gray-500"
                         >
                           {roles.map(role => (
                             <option key={role} value={role}>{role}</option>
                           ))}
                         </select>
                       </td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleSave(user)}
-                          className="bg-green-500 hover:bg-green-700 text-white font-bold py-1 px-2 rounded text-xs mr-2"
+                          className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mr-2"
                           disabled={loading}
                         >
-                          {loading ? 'Saving...' : 'Save'}
+                          {loading ? 'Guardando...' : 'Guardar'}
                         </button>
                         <button
                           onClick={handleCancelEdit}
-                          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-1 px-2 rounded text-xs"
+                          className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
                           disabled={loading}
                         >
-                          Cancel
+                          Cancelar
                         </button>
                       </td>
                     </>
                   ) : (
                     <>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{user.name}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{user.email}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{user.dni}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{user.phone}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">{user.role}</td>
-                      <td className="py-2 px-4 border-b dark:border-gray-700">
+                      <td className="py-4 px-4 whitespace-nowrap">{user.name}</td>
+                      <td className="py-4 px-4 whitespace-nowrap">{user.email}</td>
+                      <td className="py-4 px-4 whitespace-nowrap">{user.dni}</td>
+                      <td className="py-4 px-4 whitespace-nowrap">{user.phone}</td>
+                      <td className="py-4 px-4 whitespace-nowrap">{user.role}</td>
+                      <td className="py-4 px-4 whitespace-nowrap text-sm font-medium">
                         <button
                           onClick={() => handleEdit(user)}
-                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded text-xs"
+                          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
                         >
-                          Edit
+                          Editar
                         </button>
                       </td>
                     </>

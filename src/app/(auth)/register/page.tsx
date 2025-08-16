@@ -76,17 +76,13 @@ export default function RegisterPage() {
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="role" className="block text-gray-700 text-sm font-bold mb-2">Role:</label>
+            <label htmlFor="role" className="block text-gray-700 text-sm font-bold mb-2">User type:</label>
             <select
               id="role"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               value={role}
               onChange={(e) => setRole(e.target.value)}
             >
-              <option value="DOCENTE">Docente</option>
-              <option value="ESTUDIANTE">Estudiante</option>
-              <option value="DIRECTIVO">Directivo</option>
-              <option value="PRECEPTOR">Preceptor</option>
               <option value="TUTOR">Tutor</option>
             </select>
           </div>

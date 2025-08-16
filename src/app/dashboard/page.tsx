@@ -49,14 +49,7 @@ export default function DashboardPage() {
     return () => unsubscribe();
   }, [router]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/login');
-    } catch (error) {
-      console.error("Error logging out:", error);
-    }
-  };
+
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -86,19 +79,12 @@ export default function DashboardPage() {
   };
 
   return (
+    <>
     <div className="min-h-screen flex flex-col items-center justify-center bg-gray-100 p-4 dark:bg-gray-800">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md text-center dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-4">Welcome, {userProfile.name}!</h1>
-        <p className="mb-2">Email: {userProfile.email}</p>
-        <p className="mb-6">Role: {userProfile.role}</p>
         {renderDashboard()}
-        <button
-          onClick={handleLogout}
-          className="mt-6 bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-        >
-          Logout
-        </button>
       </div>
     </div>
+    </>
   );
 }
