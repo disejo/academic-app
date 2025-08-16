@@ -37,15 +37,6 @@ export default function AdminDashboard() {
           </button>
         </Link>
       </div>
-
-      <div className="mt-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
-        <h2 className="text-xl font-semibold mb-4">Performance Overview (Placeholder)</h2>
-        <p>Charts and graphs showing academic performance will be displayed here.</p>
-        {/* Placeholder for charts */}
-        <div className="h-48 bg-gray-200 dark:bg-gray-700 rounded flex items-center justify-center text-gray-500 dark:text-gray-400">
-          [Chart Placeholder]
-        </div>
-      </div>
     </div>
     </>
   );

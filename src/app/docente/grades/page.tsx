@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, where, addDoc, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -166,6 +166,10 @@ export default function DocenteGradesPage() {
           name: doc.data().name,
           dni: doc.data().dni || 'N/A',
         })) as Student[];
+
+        // Sort students by name A-Z
+        fetchedStudents.sort((a, b) => a.name.localeCompare(b.name));
+
         setStudents(fetchedStudents);
 
         setGradesInput(fetchedStudents.map(student => ({ studentId: student.id, trimester1: '', trimester2: '', trimester3: '' })));
@@ -218,49 +222,68 @@ export default function DocenteGradesPage() {
     fetchGrades();
   }, [activeAcademicCycle, selectedSubject, students]);
 
-  const handleGradeChange = async (studentId: string, trimester: number, value: string) => {
-    const grade = value === '' ? '' : parseFloat(value);
-    setGradesInput(prev =>
-      prev.map(item =>
-        item.studentId === studentId ? { ...item, [`trimester${trimester}`]: grade } : item
-      )
-    );
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-    if (!user || !activeAcademicCycle || !selectedSubject) {
-      return;
+  const handleGradeChange = useCallback(async (studentId: string, trimester: number, value: string) => {
+    // Clear any existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
     }
 
-    try {
-      const gradeData = {
-        studentId,
-        subjectId: selectedSubject,
-        academicCycleId: activeAcademicCycle.id,
-        trimester,
-        grade,
-        teacherId: user.uid,
-        updatedAt: serverTimestamp(),
-      };
-
-      const q = query(
-        collection(db, 'grades'),
-        where('studentId', '==', studentId),
-        where('subjectId', '==', selectedSubject),
-        where('academicCycleId', '==', activeAcademicCycle.id),
-        where('trimester', '==', trimester)
+    // Set a new timeout
+    timeoutRef.current = setTimeout(async () => {
+      const grade = value === '' ? '' : parseFloat(value);
+      setGradesInput(prev =>
+        prev.map(item =>
+          item.studentId === studentId ? { ...item, [`trimester${trimester}`]: grade } : item
+        )
       );
-      const querySnapshot = await getDocs(q);
 
-      if (!querySnapshot.empty) {
-        const docId = querySnapshot.docs[0].id;
-        await setDoc(doc(db, 'grades', docId), gradeData, { merge: true });
-      } else {
-        await addDoc(collection(db, 'grades'), { ...gradeData, createdAt: serverTimestamp() });
+      if (!user || !activeAcademicCycle || !selectedSubject) {
+        return;
       }
-    } catch (err: any) {
-      console.error("Error al guardar la calificación:", err);
-      setError(err.message);
-    }
-  };
+
+      try {
+        const gradeData = {
+          studentId,
+          subjectId: selectedSubject,
+          academicCycleId: activeAcademicCycle.id,
+          trimester,
+          grade,
+          teacherId: user.uid,
+          updatedAt: serverTimestamp(),
+        };
+
+        const q = query(
+          collection(db, 'grades'),
+          where('studentId', '==', studentId),
+          where('subjectId', '==', selectedSubject),
+          where('academicCycleId', '==', activeAcademicCycle.id),
+          where('trimester', '==', trimester)
+        );
+        const querySnapshot = await getDocs(q);
+
+        if (!querySnapshot.empty) {
+          const docId = querySnapshot.docs[0].id;
+          await setDoc(doc(db, 'grades', docId), gradeData, { merge: true });
+        } else {
+          await addDoc(collection(db, 'grades'), { ...gradeData, createdAt: serverTimestamp() });
+        }
+      } catch (err: any) {
+        console.error("Error al guardar la calificación:", err);
+        setError(err.message);
+      }
+    }, 500); // Debounce for 500ms
+  }, [user, activeAcademicCycle, selectedSubject, setGradesInput]); // Dependencies for useCallback
+
+  // Clean up the timeout when the component unmounts
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const calculateAverage = (grades: GradeInput) => {
     const validGrades = [grades.trimester1, grades.trimester2, grades.trimester3].filter(g => g !== '') as number[];
@@ -389,12 +412,12 @@ export default function DocenteGradesPage() {
                   const studentGrades = gradesInput.find(g => g.studentId === student.id);
                   return (
                     <div key={student.id} className="grid grid-cols-6 gap-4 items-center p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                      <p className="font-medium col-span-2">{student.name} ({student.dni})</p>
+                      <p className="font-medium col-span-2">{student.name} ({student.dni??'N/A'})</p>
                       <div className="flex items-center space-x-2">
                         <input
                         placeholder='T1'
                           type="number"
-                          step="0.01"
+                          step="0.5"
                           min="0"
                           max="10"
                           className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -406,7 +429,7 @@ export default function DocenteGradesPage() {
                         <input
                         placeholder='T2'
                           type="number"
-                          step="0.01"
+                          step="0.5"
                           min="0"
                           max="10"
                           className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -418,7 +441,7 @@ export default function DocenteGradesPage() {
                         <input
                         placeholder='T3'
                           type="number"
-                          step="0.01"
+                          step="0.5"
                           min="0"
                           max="10"
                           className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
