@@ -8,7 +8,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import Icon from '@mdi/react';
 import { mdiAccountSchoolOutline } from '@mdi/js';
 import { mdiLogout } from '@mdi/js';
-
+import { mdiAccountEdit } from '@mdi/js';
 
 interface UserProfile {
   name: string;
@@ -63,10 +63,12 @@ export default function NavBoard() {
         <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
             <Link href="/dashboard" rel="noopener noreferrer" className="flex items-center space-x-3 rtl:space-x-reverse">
                 <Icon path={mdiAccountSchoolOutline} size={1} />
-                <span className="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"></span>
+                <span className="text-sm  text-gray-500 dark:text-white">Welcome, {userProfile?.name}!</span>
             </Link>
             <div className="flex items-center space-x-6 rtl:space-x-reverse">
-                <span className="text-sm  text-gray-500 dark:text-white">Welcome, {userProfile?.name}!</span>
+                <Link href={'/profile'}>
+                    <Icon path={mdiAccountEdit} size={1} color="gray" />
+                </Link>
                 <button onClick={handleLogout} className="cursor-pointer text-sm  text-blue-600 dark:text-blue-500 hover:underline"><Icon path={mdiLogout} size={1} /></button>
             </div>
         </div>
