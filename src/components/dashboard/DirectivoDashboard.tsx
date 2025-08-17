@@ -41,6 +41,11 @@ export default function DirectivoDashboard() {
     await router.push('/admin/student-promotion');
   };
 
+  const handleClickStudentGrade = async () => {
+    setLoading(true);
+    await router.push('/directivo/users');
+  };
+
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -69,7 +74,6 @@ export default function DirectivoDashboard() {
 
   return (
     <div className="w-full mt-14 p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
-      <h1 className="text-4xl font-bold mb-8 text-center">Panel de Directivo</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <TotalStudents />
         <BetterAverage />
@@ -123,6 +127,13 @@ export default function DirectivoDashboard() {
             className="block items-center justify-center cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Promoción de Estudiantes'}
+          </button>
+          <button
+            onClick={handleClickStudentGrade}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Nota por Estudiante'}
           </button>
 
         </div>
