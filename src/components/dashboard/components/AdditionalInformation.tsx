@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc } from 'firebase/firestore';
 
 interface Director {
   id: string;
@@ -14,13 +14,14 @@ interface StudentGrade {
   grade: number;
   subject: string;
   classroomId: string; 
-  timestamp?: any; 
-  updatedBy?: string; 
+  updatedAt?: any; 
+  teacherId?: string; 
 }
 
 export function AdditionalInformation(){
     const [directors, setDirectors] = useState<Director[]>([]);
     const [lastGradeUpdate, setLastGradeUpdate] = useState<StudentGrade | null>(null);
+    const [teacherName, setTeacherName] = useState<string | null>(null); // New state for teacher's name
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
@@ -37,8 +38,20 @@ export function AdditionalInformation(){
                 setDirectors(directorsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name })));
 
                 if (fetchedGrades.length > 0) {
-                  const latestGrade = fetchedGrades.sort((a, b) => (b.timestamp?.toDate().getTime() || 0) - (a.timestamp?.toDate().getTime() || 0))[0];
+                  const latestGrade = fetchedGrades.sort((a, b) => (b.updatedAt?.toDate().getTime() || 0) - (a.updatedAt?.toDate().getTime() || 0))[0];
                   setLastGradeUpdate(latestGrade);
+
+                  // Fetch teacher's name if teacherId exists
+                  if (latestGrade.teacherId) {
+                    const teacherDocRef = doc(db, 'users', latestGrade.teacherId);
+                    const teacherDocSnap = await getDoc(teacherDocRef);
+
+                    if (teacherDocSnap.exists() && teacherDocSnap.data().role === 'DOCENTE') {
+                      setTeacherName(teacherDocSnap.data().name);
+                    } else {
+                      setTeacherName('Desconocido');
+                    }
+                  }
                 }
             } catch (err: any) {
                 console.error("Error fetching dashboard data:", err);
@@ -65,7 +78,7 @@ export function AdditionalInformation(){
             <p>
               <span className="font-semibold">Última Actualización de Notas:</span> 
               {lastGradeUpdate ? (
-                `El ${lastGradeUpdate.timestamp?.toDate().toLocaleString()} por ${lastGradeUpdate.updatedBy || 'Desconocido'}`
+                `El ${lastGradeUpdate.updatedAt?.toDate().toLocaleString()} por ${teacherName || 'Desconocido'}`
               ) : (
                 "N/A"
               )}

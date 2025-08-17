@@ -1,34 +1,111 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
+import TopTenStudents from './components/TopTenStudents';
+import {SubjectPerformance} from './components/SubjectPerformance';
+import {AdditionalInformation} from './components/AdditionalInformation';
+import TotalStudents from './components/TotalStudents';
+import BetterAverage from './components/BetterAverage';
+
+import { useRouter } from 'next/navigation';
+
 export default function PreceptorDashboard() {
-  return (
-    <div className="mt-8">
-      <h2 className="text-xl font-semibold mb-4">Preceptor Actions</h2>
-      <div className="space-y-4">
-        <Link href="/admin/subjects-classrooms">
-          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
-            Manage Subjects and Classrooms
-          </button>
-        </Link>
-        <br/>
-        <Link href="/preceptor/grades">
-          <button className="cursor-pointer bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full">
-            View Grades for Classroom
-          </button>
-        </Link>
-        <br/>
-        <Link href="/preceptor/classrooms">
-          <button className="cursor-pointer bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded w-full">
-            Manage Classrooms
-          </button>
-        </Link>
-        <br/>
-        <Link href="/preceptor/students/create">
-          <button className="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded w-full">
-            Create Student
-          </button>
-        </Link>
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+
+  const handleClickManageSubjectsClassrooms = async () => {
+    setLoading(true);
+    await router.push('/admin/subjects-classrooms');
+  };
+  const handleClickViewGrades = async () => {
+    setLoading(true);
+    await router.push('/preceptor/grades');
+  };
+  const handleClickManageClassrooms = async () => {
+    setLoading(true);
+    await router.push('/preceptor/classrooms');
+  };
+  const handleClickCreateStudent = async () => {
+    setLoading(true);
+    await router.push('/preceptor/students/create');
+  };
+
+
+  useEffect(() => {
+    // Simulate loading for the main dashboard, as sub-components fetch their own data
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1000); // Simulate a 1-second loading time
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 text-gray-100">
+        Cargando datos del tablero...
       </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 text-red-400">
+        <p>{error}</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-full mt-14 p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
+      <h1 className="text-4xl font-bold mb-8 text-center">Panel de Preceptor</h1>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <TotalStudents />
+        <BetterAverage />
+      </div>
+      <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-2xl font-bold mb-4 text-gray-800 dark:text-gray-100">Acciones del Preceptor</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button
+            onClick={handleClickManageSubjectsClassrooms}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Gestionar Asignaturas y Aulas'}
+          </button>
+
+          <button
+            onClick={handleClickViewGrades}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Ver Calificaciones'}
+          </button>
+
+          <button
+            onClick={handleClickManageClassrooms}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Gestionar Aulas'}
+          </button>
+
+          <button
+            onClick={handleClickCreateStudent}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Crear Estudiante'}
+          </button>
+
+        </div>
+      </div>
+      <TopTenStudents />
+      <SubjectPerformance />
+      <AdditionalInformation />
     </div>
   );
 }

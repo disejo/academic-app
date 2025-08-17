@@ -164,7 +164,7 @@ export default function DocenteProgramsPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
+    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
         <h1 className="text-2xl font-bold mb-6 text-center">Manage My Programs</h1>
 
