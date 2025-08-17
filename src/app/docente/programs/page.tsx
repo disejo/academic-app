@@ -65,22 +65,34 @@ export default function DocenteProgramsPage() {
       if (!cycleSnapshot.empty) {
         setActiveAcademicCycle({ id: cycleSnapshot.docs[0].id, name: cycleSnapshot.docs[0].data().name });
       } else {
-        setError("No active academic cycle found. Please contact an administrator.");
+  setError("No se encontró un ciclo académico activo. Por favor, contacte a un administrador.");
         setLoading(false);
         return;
       }
 
-      // Fetch subjects
+      // Fetch subjects asignadas al docente
       const qSubjects = query(collection(db, 'subjects'));
       const subjectsSnapshot = await getDocs(qSubjects);
-      const fetchedSubjects = subjectsSnapshot.docs.map(doc => ({
-        id: doc.id,
-        name: doc.data().name
-      })) as Subject[];
+      let fetchedSubjects: Subject[] = [];
+      if (user) {
+        fetchedSubjects = subjectsSnapshot.docs
+          .map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            titularId: doc.data().titularId,
+            suplenteId: doc.data().suplenteId,
+            auxiliarId: doc.data().auxiliarId,
+          }))
+          .filter(subject =>
+            subject.titularId === user.uid ||
+            subject.suplenteId === user.uid ||
+            subject.auxiliarId === user.uid
+          ) as Subject[];
+      }
       setSubjects(fetchedSubjects);
 
     } catch (err: any) {
-      console.error("Error fetching initial data:", err);
+  console.error("Error al obtener los datos iniciales:", err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -110,7 +122,7 @@ export default function DocenteProgramsPage() {
         setProgramContent('');
       }
     } catch (err: any) {
-      console.error("Error fetching program:", err);
+  console.error("Error al obtener el programa:", err);
       setError(err.message);
     }
   };
@@ -120,7 +132,7 @@ export default function DocenteProgramsPage() {
     setError(null);
 
     if (!user || !activeAcademicCycle || !selectedSubject || !programTitle || !programContent) {
-      setError("Please fill all required fields.");
+  setError("Por favor, complete todos los campos requeridos.");
       return;
     }
 
@@ -137,25 +149,25 @@ export default function DocenteProgramsPage() {
 
       if (currentProgram?.id) {
         // Update existing program
-        await updateDoc(doc(db, 'programs', currentProgram.id), programData);
-        alert("Program updated successfully!");
+        await updateDoc(doc(db, 'programs', currentProgram.id), { ...programData });
+  alert("¡Programa actualizado exitosamente!");
       } else {
         // Create new program
-        await addDoc(collection(db, 'programs'), programData);
-        alert("Program created successfully!");
+        await addDoc(collection(db, 'programs'), { ...programData });
+  alert("¡Programa creado exitosamente!");
       }
       fetchProgram(); // Refresh current program state
     } catch (err: any) {
-      console.error("Error saving program:", err);
+  console.error("Error al guardar el programa:", err);
       setError(err.message);
     }
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading Programs...</div>;
+    return <div className="min-h-screen flex items-center justify-center">Cargando programas...</div>;
   }
 
-  if (error && error.includes("No active academic cycle")) {
+  if (error && error.includes("No se encontró un ciclo académico activo")) {
     return (
       <div className="min-h-screen flex items-center justify-center text-red-500">
         {error}
@@ -166,13 +178,13 @@ export default function DocenteProgramsPage() {
   return (
     <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">Manage My Programs</h1>
+  <h1 className="text-2xl font-bold mb-6 text-center">Gestionar mis programas</h1>
 
-        {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
+  {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div>
-            <label htmlFor="subject" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Subject:</label>
+            <label htmlFor="subject" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Asignatura:</label>
             <select
               id="subject"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -180,7 +192,7 @@ export default function DocenteProgramsPage() {
               onChange={(e) => setSelectedSubject(e.target.value)}
               required
             >
-              <option value="">Select a Subject</option>
+              <option value="">Seleccione una asignatura</option>
               {subjects.map(subject => (
                 <option key={subject.id} value={subject.id}>{subject.name}</option>
               ))}
@@ -188,16 +200,16 @@ export default function DocenteProgramsPage() {
           </div>
           {activeAcademicCycle && (
             <div className="flex items-center justify-center">
-              <p className="text-lg font-medium">Active Academic Cycle: {activeAcademicCycle.name}</p>
+              <p className="text-lg font-medium">Ciclo académico activo: {activeAcademicCycle.name}</p>
             </div>
           )}
         </div>
 
         {selectedSubject && activeAcademicCycle && (
           <form onSubmit={handleSaveProgram} className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
-            <h2 className="text-xl font-semibold mb-4">{currentProgram ? 'Edit Program' : 'Create New Program'}</h2>
+            <h2 className="text-xl font-semibold mb-4">{currentProgram ? 'Editar programa' : 'Crear nuevo programa'}</h2>
             <div className="mb-4">
-              <label htmlFor="programTitle" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Program Title:</label>
+              <label htmlFor="programTitle" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Título del programa:</label>
               <input
                 type="text"
                 id="programTitle"
@@ -208,7 +220,7 @@ export default function DocenteProgramsPage() {
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="programContent" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Program Content:</label>
+              <label htmlFor="programContent" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Contenido del programa:</label>
               <textarea
                 id="programContent"
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -222,10 +234,10 @@ export default function DocenteProgramsPage() {
               type="submit"
               className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full cursor-pointer"
             >
-              {currentProgram ? 'Update Program' : 'Create Program'}
+              {currentProgram ? 'Actualizar programa' : 'Crear programa'}
             </button>
           </form>
-        )} {!selectedSubject && <p className="text-center">Please select a subject to manage programs.</p>}
+  )} {!selectedSubject && <p className="text-center">Por favor, seleccione una asignatura para gestionar programas.</p>}
       </div>
     </div>
   );

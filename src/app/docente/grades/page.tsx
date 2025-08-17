@@ -103,7 +103,7 @@ export default function DocenteGradesPage() {
 
   useEffect(() => {
     const fetchSubjectsByClassroom = async () => {
-      if (!selectedClassroom) {
+      if (!selectedClassroom || !user) {
         setSubjects([]);
         return;
       }
@@ -116,21 +116,31 @@ export default function DocenteGradesPage() {
         if (subjectIds.length > 0) {
           const subjectsQuery = query(collection(db, 'subjects'), where('__name__', 'in', subjectIds));
           const subjectsSnapshot = await getDocs(subjectsQuery);
-          const fetchedSubjects = subjectsSnapshot.docs.map(doc => ({
-            id: doc.id,
-            name: doc.data().name
-          })) as Subject[];
+          // Filtrar solo las asignaturas donde el docente es titular, suplente o auxiliar
+          const fetchedSubjects = subjectsSnapshot.docs
+            .map(doc => ({
+              id: doc.id,
+              name: doc.data().name,
+              titularId: doc.data().titularId,
+              suplenteId: doc.data().suplenteId,
+              auxiliarId: doc.data().auxiliarId,
+            }))
+            .filter(subject =>
+              subject.titularId === user.uid ||
+              subject.suplenteId === user.uid ||
+              subject.auxiliarId === user.uid
+            ) as Subject[];
           setSubjects(fetchedSubjects);
         } else {
           setSubjects([]);
         }
       } catch (error) {
-        console.error("Error fetching subjects by classroom: ", error);
+        console.error("Error al obtener asignaturas del aula: ", error);
       }
     };
 
     fetchSubjectsByClassroom();
-  }, [selectedClassroom]);
+  }, [selectedClassroom, user]);
 
   useEffect(() => {
     const fetchStudentsByClassroom = async () => {
