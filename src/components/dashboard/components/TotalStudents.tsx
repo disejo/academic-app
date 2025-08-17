@@ -3,6 +3,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import Icon from '@mdi/react';
+import { mdiAccountGroupOutline } from '@mdi/js';
 
 interface CardProps {
   title: string;
@@ -12,7 +14,10 @@ interface CardProps {
 
 const StatCard: React.FC<CardProps> = ({ title, value, description }) => (
   <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md flex-1 min-w-[200px]">
-    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 mb-2">{title}</h3>
+    <div className="flex items-center">
+      <Icon path={mdiAccountGroupOutline} size={1} />
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 ml-2">{title}</h3>
+    </div>
     <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">{value}</p>
     <p className="text-sm text-gray-500 dark:text-gray-300">{description}</p>
   </div>

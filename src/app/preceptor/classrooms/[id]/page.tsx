@@ -153,18 +153,18 @@ const ClassroomDetailPage = () => {
   console.log("canManage:", canManage);
   console.log("selectedCycleId:", selectedCycleId);
 
-  if (loading) return <div className="text-center p-10 dark:text-gray-200">Cargando datos del aula...</div>;
-  if (loadingError) return <div className="text-center p-10 text-red-500">{loadingError}</div>;
-  if (!classroom) return <div className="text-center p-10 dark:text-gray-200">Aula no encontrada.</div>;
+  if (loading) return <div className="text-center p-10 dark:text-gray-200 mt-14">Cargando datos del aula...</div>;
+  if (loadingError) return <div className="text-center p-10 text-red-500 mt-14">{loadingError}</div>;
+  if (!classroom) return <div className="text-center p-10 dark:text-gray-200 mt-14">Aula no encontrada.</div>;
 
   return (
-    <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100">
-      <div className="mb-6">
-        <Link href="/preceptor/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a todas las aulas</Link>
-        <h1 className="text-3xl font-bold mt-2">Aula: {classroom.name}</h1>
-      </div>
+    <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100 mt-14">
       
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+        <div className='flex justify-between items-center mb-4'>
+            <h1 className="text-3xl font-bold mt-2">Aula: {classroom.name}</h1>
+            <Link href="/preceptor/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a todas las aulas</Link>
+        </div>
         <h2 className="text-2xl font-semibold mb-4">Asignar Estudiantes</h2>
         
         <div className="mb-4">

@@ -4,6 +4,8 @@ import { useState, useEffect } from 'react';
 import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, doc, getDoc } from 'firebase/firestore';
+import Icon from '@mdi/react';
+import { mdiBullseyeArrow } from '@mdi/js';
 
 interface ClassroomData {
   id: string;
@@ -343,7 +345,7 @@ export function SubjectPerformance() {
         </div>
       ) : (
         <div className="text-center py-12 text-gray-500 dark:text-gray-400">
-          <div className="text-6xl mb-4">🎯</div>
+          <div className="flex flex-col items-center mb-4"><Icon path={mdiBullseyeArrow} size={3} /></div>
           <p className="text-lg">Seleccione un aula y una asignatura para ver el rendimiento</p>
         </div>
       )}

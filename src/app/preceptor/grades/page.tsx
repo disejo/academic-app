@@ -8,6 +8,9 @@ import { useAuth } from '@/hooks/useAuth';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
+import Icon from '@mdi/react';
+import { mdiFilePdfBox } from '@mdi/js';
+
 interface AcademicCycle {
   id: string;
   name: string;
@@ -217,11 +220,12 @@ export default function PreceptorGradesPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
+    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
       <div className="max-w-6xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-center">Libretas de Calificaciones</h1>
-          <Link href="/dashboard" className="text-blue-500 hover:underline">Volver al Dashboard</Link>
+          
+          {/* <Link href="/dashboard" className="text-blue-500 hover:underline">Volver al Dashboard</Link> */}
         </div>
 
         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
@@ -278,7 +282,9 @@ export default function PreceptorGradesPage() {
             <div key={student.id} className="p-4 border rounded-lg">
               <div className="flex justify-between items-center">
                 <h2 className="text-xl font-bold">{student.name} (DNI: {student.dni})</h2>
-                <button onClick={() => handleDownloadPdf(student)} className="text-2xl">📋</button>
+                <button onClick={() => handleDownloadPdf(student)} className="cursor-pointer text-red-400">
+                  <Icon path={mdiFilePdfBox} size={1} />
+                </button>
               </div>
               <table className="w-full mt-4 text-sm text-left text-gray-500 dark:text-gray-400">
                 <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">

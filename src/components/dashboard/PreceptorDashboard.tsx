@@ -61,7 +61,6 @@ export default function PreceptorDashboard() {
 
   return (
     <div className="w-full mt-14 p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-800 min-h-screen text-gray-900 dark:text-gray-100">
-      <h1 className="text-4xl font-bold mb-8 text-center">Panel de Preceptor</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <TotalStudents />
         <BetterAverage />
@@ -72,7 +71,7 @@ export default function PreceptorDashboard() {
           <button
             onClick={handleClickManageSubjectsClassrooms}
             disabled={loading}
-            className="block items-center justify-center cursor-pointer bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+            className="block items-center justify-center cursor-pointer bg-blue-800 hover:bg-blue-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Gestionar Asignaturas y Aulas'}
           </button>
@@ -80,17 +79,17 @@ export default function PreceptorDashboard() {
           <button
             onClick={handleClickViewGrades}
             disabled={loading}
-            className="block items-center justify-center cursor-pointer bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+            className="block items-center justify-center cursor-pointer bg-red-800 hover:bg-red-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
-            {loading ? 'Cargando...' : 'Ver Calificaciones'}
+            {loading ? 'Cargando...' : 'Libretas de calificaciones'}
           </button>
 
           <button
             onClick={handleClickManageClassrooms}
             disabled={loading}
-            className="block items-center justify-center cursor-pointer bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+            className="block items-center justify-center cursor-pointer bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
-            {loading ? 'Cargando...' : 'Gestionar Aulas'}
+            {loading ? 'Cargando...' : 'Gestionar Aulas y Estudiantes'}
           </button>
 
           <button
@@ -98,7 +97,7 @@ export default function PreceptorDashboard() {
             disabled={loading}
             className="block items-center justify-center cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
-            {loading ? 'Cargando...' : 'Crear Estudiante'}
+            {loading ? 'Cargando...' : 'Crear Nuevo Estudiante'}
           </button>
 
         </div>
