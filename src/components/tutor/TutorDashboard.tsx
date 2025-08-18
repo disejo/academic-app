@@ -32,6 +32,7 @@ const LoadingSpinner = () => (
   </div>
 );
 
+
 // Error Message Component
 const ErrorMessage = ({ message }: { message: string }) => (
   <div className="text-center py-10 px-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
@@ -128,7 +129,11 @@ export default function TutorDashboard() {
 
   // Render Logic
   if (authLoading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="w-full h-[400px] flex justify-center items-center">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (!user) {
@@ -156,8 +161,7 @@ export default function TutorDashboard() {
   }
 
   return (
-    <div className="container mx-auto p-4 sm:p-6">
-      <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-8">Panel de Tutor</h1>
+    <div className="container mx-auto p-4 sm:p-6 mt-14">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
           <h3 className="text-2xl font-bold mb-5">Mis Hijos</h3>

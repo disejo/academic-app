@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -125,7 +124,9 @@ const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps)
   if (loading) {
     return (
         <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md w-full h-[400px] flex justify-center items-center">
-            <p className="text-gray-700 dark:text-gray-300">Cargando gráfica...</p>
+        <div className="flex justify-center items-center py-12">
+           <span className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></span>
+        </div>
         </div>
     );
   }

@@ -49,7 +49,13 @@ const TutorChartsContainer = () => {
   }, [user, authLoading]);
 
   if (authLoading || loading) {
-    return <div className="text-center p-8">Cargando...</div>;
+    return (
+      <div className="p-4 rounded-lg shadow-md w-full h-[400px] flex justify-center items-center">
+        <div className="flex justify-center items-center py-12">
+           <span className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></span>
+        </div>
+      </div>
+    );
   }
 
   if (!user) {
@@ -62,7 +68,7 @@ const TutorChartsContainer = () => {
 
   return (
     <section className="w-ful">
-        <h2 className="text-2xl font-bold mb-6 mt-8 text-gray-800 dark:text-gray-200 p-2">Calificaciones de Estudiantes</h2>
+        <h2 className="text-2xl font-bold mb-6 mt-8 text-gray-800 dark:text-gray-200 p-2">Notas por trimestre</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-8">
             {students.map(student => (
                 <StudentGradesChart key={student.studentId} studentId={student.studentId} studentName={student.studentName} />

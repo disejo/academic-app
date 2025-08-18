@@ -142,7 +142,7 @@ export default function StudentReportCard({ studentId }: StudentReportCardProps)
 
       {error && (
         <div className="text-center py-12 px-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-          <p className="text-red-600 dark:text-red-400 font-semibold">😕 ¡Oops! Algo salió mal.</p>
+          <p className="text-red-600 dark:text-red-400 font-semibold">¡Oops! Algo salió mal.</p>
           <p className="text-red-500 dark:text-red-500 mt-2">{error}</p>
         </div>
       )}
