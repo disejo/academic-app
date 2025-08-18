@@ -15,6 +15,7 @@ import {
 } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
 import StudentReportCard from './components/StudentReportCard';
+import TutorChartsContainer from './TutorChartsContainer';
 
 // Interfaces
 interface Student {
@@ -164,7 +165,7 @@ export default function TutorDashboard() {
             <ul className="space-y-4">
               {myChildren.map(child => (
                 <li key={child.id}>
-                  <button onClick={() => handleSelectChild(child.id)} className="w-full text-left block p-5 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-blue-100 dark:hover:bg-gray-700 hover:shadow-md transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <button onClick={() => handleSelectChild(child.id)} className="w-full text-left block p-5 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-blue-100 dark:hover:bg-gray-700 hover:shadow-md transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                     <p className="font-bold text-lg text-blue-800 dark:text-blue-300">{child.name}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">DNI: {child.dni}</p>
                   </button>
@@ -220,6 +221,7 @@ export default function TutorDashboard() {
           )}
         </div>
       </div>
+      <TutorChartsContainer />
     </div>
   );
 }
