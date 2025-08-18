@@ -11,7 +11,7 @@ import DocenteDashboard from '@/components/dashboard/DocenteDashboard';
 import EstudianteDashboard from '@/components/dashboard/EstudianteDashboard';
 import DirectivoDashboard from '@/components/dashboard/DirectivoDashboard';
 import PreceptorDashboard from '@/components/dashboard/PreceptorDashboard';
-import TutorDashboard from '@/components/dashboard/TutorDashboard';
+import TutorDashboard from '@/components/tutor/TutorDashboard';
 
 interface UserProfile {
   name: string;
