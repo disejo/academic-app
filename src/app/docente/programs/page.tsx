@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, where, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import dynamic from 'next/dynamic';
 
 interface AcademicCycle {
   id: string;
@@ -25,6 +26,10 @@ interface Program {
   createdAt: any;
   updatedAt: any;
 }
+
+const RichTextEditor = dynamic(() => import('@/components/RichTextEditor'), {
+  ssr: false,
+});
 
 export default function DocenteProgramsPage() {
   const [user, setUser] = useState<any>(null);
@@ -176,8 +181,8 @@ export default function DocenteProgramsPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
+    <div className="min-h-screen w-full p-0 bg-gray-100 dark:bg-gray-800 mt-14">
+      <div className="w-full bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
   <h1 className="text-2xl font-bold mb-6 text-center">Gestionar mis programas</h1>
 
   {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
@@ -221,14 +226,7 @@ export default function DocenteProgramsPage() {
             </div>
             <div className="mb-4">
               <label htmlFor="programContent" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Contenido del programa:</label>
-              <textarea
-                id="programContent"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
-                value={programContent}
-                onChange={(e) => setProgramContent(e.target.value)}
-                rows={10}
-                required
-              ></textarea>
+              <RichTextEditor value={programContent} onChange={setProgramContent} />
             </div>
             <button
               type="submit"

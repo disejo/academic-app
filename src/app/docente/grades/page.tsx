@@ -364,8 +364,9 @@ export default function DocenteGradesPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
+    <div className='mt-14'>
+    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
+      <div className="bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
         <h1 className="text-2xl font-bold mb-6 text-center">Ingresar Calificaciones</h1>
 
         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
@@ -470,6 +471,7 @@ export default function DocenteGradesPage() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }
