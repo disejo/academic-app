@@ -102,7 +102,15 @@ export default function StudentReportCard({ studentId }: StudentReportCardProps)
   }, [studentId, selectedCycleId]);
 
   // Memoized transformation of grades data for rendering
-  const reportData = useMemo(() => {
+  interface ReportRow {
+    subjectName: string;
+    [trimester: number]: number | string | null | undefined;
+    1?: number | null;
+    2?: number | null;
+    3?: number | null;
+  }
+
+  const reportData: ReportRow[] = useMemo(() => {
     const data: { [subjectName: string]: { [trimester: number]: number | null } } = {};
     grades.forEach(grade => {
       const subjectName = subjects.get(grade.subjectId) || 'Materia Desconocida';
@@ -164,7 +172,7 @@ export default function StudentReportCard({ studentId }: StudentReportCardProps)
                   <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-md font-medium text-gray-800 dark:text-gray-200">{row.subjectName}</td>
                     {[1, 2, 3].map(trim => (
-                        <td key={trim} className={`px-6 py-4 whitespace-nowrap text-md text-center font-bold ${getGradeColor(row[trim])}`}>
+                        <td key={trim} className={`px-6 py-4 whitespace-nowrap text-md text-center font-bold ${getGradeColor(row[trim] !== undefined ? (typeof row[trim] === 'number' ? row[trim] : null) : null)}`}>
                             {row[trim] ?? '-'}
                         </td>
                     ))}

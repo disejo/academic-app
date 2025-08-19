@@ -33,6 +33,11 @@ export default function PreceptorDashboard() {
     await router.push('/preceptor/students/create');
   };
 
+  const handleClickManageSubjects = async () => {
+    setLoading(true);
+    await router.push('/admin/subjects');
+  };
+
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -98,6 +103,13 @@ export default function PreceptorDashboard() {
             className="block items-center justify-center cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Crear Nuevo Estudiante'}
+          </button>
+          <button
+            onClick={handleClickManageSubjects}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Crear | Asignar Docentes a Asignaturas'}
           </button>
 
         </div>

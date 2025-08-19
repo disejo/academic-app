@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 import Link from 'next/link';
 import { doc, getDoc } from 'firebase/firestore';
@@ -16,13 +18,20 @@ interface UserProfile {
   role: string;
 }
 
+// Loading Spinner Component
+const LoadingSpinner = () => (
+  <div className="flex justify-center items-center py-12">
+    <div className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></div>
+  </div>
+);
+
+
 export default function NavBoard() {
 
     const [user, setUser] = useState<any>(null);
     const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
     const [loading, setLoading] = useState(true);
     const router = useRouter();
-    
 
     useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -48,31 +57,43 @@ export default function NavBoard() {
     return () => unsubscribe();
     }, [router]);
 
-    const handleLogout = async () => {
-        try {
-        await signOut(auth);
+  const [showSpinner, setShowSpinner] = useState(false);
+
+  const handleLogout = async () => {
+    setShowSpinner(true);
+    try {
+      await signOut(auth);
+      setTimeout(() => {
         router.push('/login');
-        } catch (error) {
-        console.error("Error logging out:", error);
-        }
-    };
+      }, 1800);
+    } catch (error: any) {
+      setShowSpinner(false);
+      console.error("Error logging out:", error);
+    }
+  };
   
-    return (
-        <>
+  return (
+    <>
+      {showSpinner ? (
+        <div className="fixed top-0 left-0 w-full h-full flex items-center justify-center bg-black bg-opacity-30 z-[100]">
+          <LoadingSpinner />
+        </div>
+      ) : (
         <nav className="bg-white dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
-        <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
+          <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
             <Link href="/dashboard" rel="noopener noreferrer" className="flex items-center space-x-3 rtl:space-x-reverse">
-                <Icon path={mdiAccountSchoolOutline} size={1} />
-                <span className="text-sm  text-gray-500 dark:text-white">Welcome, {userProfile?.name}!</span>
+              <Icon path={mdiAccountSchoolOutline} size={1} />
+              <span className="text-sm  text-gray-500 dark:text-white">Welcome, {userProfile?.name}!</span>
             </Link>
             <div className="flex items-center space-x-6 rtl:space-x-reverse">
-                <Link href={'/profile'}>
-                    <Icon path={mdiAccountEdit} size={1} color="gray" />
-                </Link>
-                <button onClick={handleLogout} className="cursor-pointer text-sm  text-blue-600 dark:text-blue-500 hover:underline"><Icon path={mdiLogout} size={1} /></button>
+              <Link href={'/profile'}>
+                <Icon path={mdiAccountEdit} size={1} color="gray" />
+              </Link>
+              <button onClick={handleLogout} className="cursor-pointer text-sm  text-blue-600 dark:text-blue-500 hover:underline"><Icon path={mdiLogout} size={1} /></button>
             </div>
-        </div>
+          </div>
         </nav>
-        </>
-    );
+      )}
+    </>
+  );
 }

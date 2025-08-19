@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 
+// Main Dashboard Component
 export default function DocenteDashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
@@ -29,6 +30,7 @@ export default function DocenteDashboard() {
     });
     return () => unsubscribe();
   }, [router]);
+
 
 
   const handleClickGrades = async () => {

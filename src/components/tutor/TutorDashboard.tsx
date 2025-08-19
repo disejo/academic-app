@@ -36,7 +36,7 @@ const LoadingSpinner = () => (
 // Error Message Component
 const ErrorMessage = ({ message }: { message: string }) => (
   <div className="text-center py-10 px-4 bg-red-50 dark:bg-red-900/20 rounded-lg">
-    <p className="text-red-600 dark:text-red-400 font-semibold">😕 ¡Oops! Algo salió mal.</p>
+    <p className="text-red-600 dark:text-red-400 font-semibold">¡Oops! Algo salió mal.</p>
     <p className="text-red-500 dark:text-red-500 mt-2">{message}</p>
   </div>
 );
@@ -124,6 +124,21 @@ export default function TutorDashboard() {
     }
   };
 
+  // Eliminar hijo asociado
+  const handleRemoveChild = async (studentId: string) => {
+    if (!user?.uid) return;
+    setError(null);
+    try {
+      const tutorRef = doc(db, 'users', user.uid);
+      await updateDoc(tutorRef, { children: myChildren.filter(child => child.id !== studentId).map(child => child.id) });
+      const studentRef = doc(db, 'users', studentId);
+      await updateDoc(studentRef, { tutorId: null });
+      await fetchMyChildren();
+    } catch (err) {
+      setError("Error al eliminar al hijo.");
+    }
+  };
+
   const handleSelectChild = (studentId: string) => setSelectedStudentId(studentId);
   const handleBackToDashboard = () => setSelectedStudentId(null);
 
@@ -137,7 +152,7 @@ export default function TutorDashboard() {
   }
 
   if (!user) {
-    return <ErrorMessage message="Ningún usuario ha iniciado sesión. Por favor, inicie sesión como Tutor." />;
+    return <ErrorMessage message="Ningún usuario ha iniciado sesión. Por favor, inicie sesión." />;
   }
 
   if (selectedStudentId) {
@@ -168,10 +183,17 @@ export default function TutorDashboard() {
           {loadingChildren ? <LoadingSpinner /> : myChildren.length > 0 ? (
             <ul className="space-y-4">
               {myChildren.map(child => (
-                <li key={child.id}>
-                  <button onClick={() => handleSelectChild(child.id)} className="w-full text-left block p-5 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-blue-100 dark:hover:bg-gray-700 hover:shadow-md transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
+                <li key={child.id} className="flex items-center justify-between">
+                  <button onClick={() => handleSelectChild(child.id)} className="flex-1 text-left block p-5 bg-gray-100 dark:bg-gray-700/50 rounded-lg hover:bg-blue-100 dark:hover:bg-gray-700 hover:shadow-md transform hover:-translate-y-1 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer">
                     <p className="font-bold text-lg text-blue-800 dark:text-blue-300">{child.name}</p>
                     <p className="text-sm text-gray-600 dark:text-gray-400">DNI: {child.dni}</p>
+                  </button>
+                  <button
+                    onClick={() => handleRemoveChild(child.id)}
+                    className="ml-4 px-4 py-2 text-sm font-medium rounded-lg text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-all"
+                    title="Eliminar hijo"
+                  >
+                    X
                   </button>
                 </li>
               ))}
@@ -225,7 +247,7 @@ export default function TutorDashboard() {
           )}
         </div>
       </div>
-      <TutorChartsContainer />
+      <TutorChartsContainer key={myChildren.map(c => c.id).join(',')} />
     </div>
   );
 }
