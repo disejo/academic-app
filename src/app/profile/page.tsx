@@ -129,9 +129,8 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 flex justify-center py-12 px-4 sm:px-6 lg:px-8 mt-14">
-      <div className="w-full max-w-4xl bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md">
-        <h1 className="text-3xl font-bold mb-8 text-center text-gray-900 dark:text-gray-100">Mi Perfil</h1>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 flex justify-center py-12 px-4 sm:px-6 lg:px-8 mt-8">
+      <div className="w-full bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
         
         {error && <p className="text-red-500 text-center mb-4 p-3 bg-red-100 dark:bg-red-900/20 rounded-md">{error}</p>}
         {success && <p className="text-green-500 text-center mb-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-md">{success}</p>}

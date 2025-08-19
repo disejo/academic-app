@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
@@ -7,7 +8,10 @@ import { onAuthStateChanged } from 'firebase/auth';
 import * as XLSX from 'xlsx';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { useAuth } from '@/hooks/useAuth';
+import Icon from '@mdi/react';
+import { mdiFileExcel } from '@mdi/js';
+import { mdiFilePdfBox } from '@mdi/js';
+
 
 interface AcademicCycle {
   id: string;
@@ -214,11 +218,15 @@ export default function DocenteGradesPage() {
 
         const newGradesInput = students.map(student => {
           const studentGrades = fetchedGrades.filter(g => g.studentId === student.id);
+          const getGrade = (trimester: number): number | "" => {
+            const grade = studentGrades.find(g => g.trimester === trimester)?.grade;
+            return typeof grade === "number" ? grade : "";
+          };
           return {
             studentId: student.id,
-            trimester1: studentGrades.find(g => g.trimester === 1)?.grade || '',
-            trimester2: studentGrades.find(g => g.trimester === 2)?.grade || '',
-            trimester3: studentGrades.find(g => g.trimester === 3)?.grade || '',
+            trimester1: getGrade(1),
+            trimester2: getGrade(2),
+            trimester3: getGrade(3),
           };
         });
         setGradesInput(newGradesInput);
@@ -411,8 +419,8 @@ export default function DocenteGradesPage() {
         {selectedSubject && (
           <div>
             <div className="flex justify-end space-x-4 mb-4">
-              <button onClick={handleDownloadExcel} className="text-2xl">📄</button>
-              <button onClick={handleDownloadPdf} className="text-2xl">📋</button>
+              <button onClick={handleDownloadExcel} className="cursor-pointer hover:text-green-600"><Icon path={mdiFileExcel} size={1.5} /></button>
+              <button onClick={handleDownloadPdf} className="cursor-pointer hover:text-red-600"><Icon path={mdiFilePdfBox} size={1.5} /></button>
             </div>
             <h2 className="text-xl font-semibold mb-4">Estudiantes y Calificaciones</h2>
             <div className="space-y-4 mb-6">
