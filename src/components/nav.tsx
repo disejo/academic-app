@@ -80,7 +80,7 @@ export default function NavBoard() {
         </div>
       ) : (
         <nav className="bg-white dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
-          <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-4">
+          <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-2">
             <div className="flex items-center space-x-3 rtl:space-x-reverse">
               <span className="text-sm capitalize text-gray-500 dark:text-white">Bienvenido, {userProfile?.name}!</span>
             </div>
