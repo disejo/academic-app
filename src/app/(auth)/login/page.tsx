@@ -1,4 +1,5 @@
 'use client';
+import ThemeToggleButton from '@/components/ThemeToggleButton';
 
 import { useState } from 'react';
 import Image from 'next/image';
@@ -34,6 +35,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+      <div style={{ position: 'absolute', top: 24, right: 24, zIndex: 10 }}>
+        <ThemeToggleButton />
+      </div>
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md dark:bg-gray-900">
       <h1 className="text-2xl font-bold mb-6 text-center text-blue-900 dark:text-blue-300">Iniciar Sesión</h1>
         <form onSubmit={handleLogin}>
@@ -103,9 +107,9 @@ export default function LoginPage() {
             </div>
           </div>
         </form>
-        <p className="mt-4 text-center text-sm">
+        <p className="mt-4 text-center text-sm text-black dark:text-white">
           ¿No tienes una cuenta?{' '}
-          <Link href="/register" className="text-[#8EC5FF] hover:underline">
+          <Link href="/register" className="text-[#1C398E] hover:underline dark:text-[#8EC5FF]">
             Regístrate aquí
           </Link>
         </p>

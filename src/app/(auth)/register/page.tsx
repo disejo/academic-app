@@ -156,9 +156,9 @@ export default function RegisterPage() {
             >
               {loading ? 'Registrando, espera...' : 'Registrar'}
             </button>
-            <p className="mt-4 text-center text-sm">
+            <p className="mt-4 text-center text-sm text-black dark:text-white">
               ¿Ya tienes una cuenta?{' '}
-              <Link href="/login" className="text-[#7BF1A8] hover:underline">
+              <Link href="/login" className="text-[#0D542B] dark:text-[#7BF1A8] hover:underline">
                 Iniciar sesión aquí
               </Link>
             </p>
