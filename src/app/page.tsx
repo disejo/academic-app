@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function HomePage() {
   const router = useRouter();
@@ -21,8 +22,8 @@ export default function HomePage() {
   }, [router]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-800">
-      <p>Loading...</p>
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+      <LoadingSpinner />
     </div>
   );
 }
