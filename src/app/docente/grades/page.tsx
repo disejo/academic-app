@@ -360,7 +360,7 @@ export default function DocenteGradesPage() {
 
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando datos...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">Cargando datos...</div>;
   }
 
   if (error && error.includes("No se encontró un ciclo académico activo")) {
@@ -375,7 +375,7 @@ export default function DocenteGradesPage() {
     <div className='mt-14'>
     <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
       <div className="bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">Ingresar Calificaciones</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center text-gray-700 dark:text-white">Ingresar Calificaciones</h1>
 
         {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
 
@@ -413,7 +413,7 @@ export default function DocenteGradesPage() {
         </div>
 
         {activeAcademicCycle && (
-          <p className="mb-4 text-center text-lg font-medium">Ciclo Académico Activo: {activeAcademicCycle.name}</p>
+          <p className="mb-4 text-center text-lg font-medium text-gray-700 dark:text-white">Ciclo Académico Activo: {activeAcademicCycle.name}</p>
         )}
 
         {selectedSubject && (
@@ -422,16 +422,16 @@ export default function DocenteGradesPage() {
               <button onClick={handleDownloadExcel} className="cursor-pointer hover:text-green-600"><Icon path={mdiFileExcel} size={1.5} /></button>
               <button onClick={handleDownloadPdf} className="cursor-pointer hover:text-red-600"><Icon path={mdiFilePdfBox} size={1.5} /></button>
             </div>
-            <h2 className="text-xl font-semibold mb-4">Estudiantes y Calificaciones</h2>
+            <h2 className="text-xl font-semibold mb-4 text-gray-700 dark:text-white">Estudiantes y Calificaciones</h2>
             <div className="space-y-4 mb-6">
               {students.length === 0 ? (
-                <p>No se encontraron estudiantes.</p>
+                <p className="text-center text-gray-500 dark:text-gray-400">No se encontraron estudiantes.</p>
               ) : (
                 students.map((student) => {
                   const studentGrades = gradesInput.find(g => g.studentId === student.id);
                   return (
                     <div key={student.id} className="grid grid-cols-6 gap-4 items-center p-3 border rounded-lg bg-gray-50 dark:bg-gray-800">
-                      <p className="font-medium col-span-2">{student.name} ({student.dni??'N/A'})</p>
+                      <p className="font-medium col-span-2 text-gray-700 dark:text-white">{student.name} ({student.dni??'N/A'})</p>
                       <div className="flex items-center space-x-2">
                         <input
                         placeholder='T1'
@@ -468,7 +468,7 @@ export default function DocenteGradesPage() {
                           onChange={(e) => handleGradeChange(student.id, 3, e.target.value)}
                         />
                       </div>
-                      <div className="text-center font-bold">
+                      <div className="text-center font-bold text-gray-700 dark:text-white">
                         Prom: {studentGrades ? calculateAverage(studentGrades) : 'N/A'}
                       </div>
                     </div>

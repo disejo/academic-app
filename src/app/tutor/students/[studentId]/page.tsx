@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -46,7 +47,7 @@ export default function StudentProgressPage() {
   }, [studentId]);
 
   if (loading) {
-    return <div className="text-center p-10 text-gray-900 dark:text-gray-100">Cargando progreso del estudiante...</div>;
+    return <div className="text-center p-10  bg-white dark:bg-black text-gray-700 dark:text-white">Cargando progreso del estudiante...</div>;
   }
 
   if (error) {
@@ -54,7 +55,7 @@ export default function StudentProgressPage() {
   }
 
   if (!student) {
-    return <div className="text-center p-10 text-gray-900 dark:text-gray-100">Estudiante no encontrado.</div>;
+    return <div className="text-center p-10 bg-white dark:bg-black text-gray-700 dark:text-white">Estudiante no encontrado.</div>;
   }
 
   return (
@@ -74,9 +75,9 @@ export default function StudentProgressPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-700 dark:text-white">
         <h2 className="text-2xl font-semibold mb-4">Historial de Clases y Ciclos</h2>
-        <p className="text-gray-500 dark:text-gray-400">Aquí se mostrará el historial de clases y ciclos lectivos del estudiante.</p>
+        <p className="bg-white dark:bg-black text-gray-700 dark:text-white">Aquí se mostrará el historial de clases y ciclos lectivos del estudiante.</p>
         {/* Placeholder for class history */}
         <div className="h-32 bg-gray-100 dark:bg-gray-700 rounded flex items-center justify-center text-gray-500 dark:text-gray-400">
           [Historial de Clases]

@@ -170,7 +170,7 @@ export default function DocenteProgramsPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando programas...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">Cargando programas...</div>;
   }
 
   if (error && error.includes("No se encontró un ciclo académico activo")) {
@@ -182,7 +182,7 @@ export default function DocenteProgramsPage() {
   }
 
   return (
-    <div className="min-h-screen w-full p-0 bg-gray-100 dark:bg-gray-800 mt-14">
+    <div className="min-h-screen w-full p-0 dark:bg-gray-800 mt-14 bg-white text-gray-700 dark:text-white">
       <div className="w-full bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
   <h1 className="text-2xl font-bold mb-6 text-center">Gestionar mis programas</h1>
 

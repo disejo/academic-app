@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 
@@ -29,7 +29,7 @@ export default function CreateUserPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingTutors, setLoadingTutors] = useState(true);
-  const router = useRouter();
+
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -160,7 +160,7 @@ export default function CreateUserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14 text-white dark:text-gray-100">
       <div className="w-full mx-auto bg-white dark:bg-gray-900 dark:text-gray-100 rounded-lg shadow-md p-6">
         
         <div className="mb-10">

@@ -25,7 +25,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" data-theme="dark">
+    <html lang="es" data-theme="dark" suppressHydrationWarning>
+      {/* <body>{children}</body> */}
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-black`}>
         <AuthNavWrapper />
         {children}

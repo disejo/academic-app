@@ -125,7 +125,7 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando...</div>;
+    return <div className="flex justify-center items-center min-h-screen bg-white dark:bg-black text-gray-700 dark:text-white">Cargando...</div>;
   }
 
   return (
@@ -135,7 +135,7 @@ export default function ProfilePage() {
         {error && <p className="text-red-500 text-center mb-4 p-3 bg-red-100 dark:bg-red-900/20 rounded-md">{error}</p>}
         {success && <p className="text-green-500 text-center mb-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-md">{success}</p>}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8 bg-white dark:bg-black text-gray-700 dark:text-white">
           {/* Columna Izquierda */}
           <div className="flex flex-col gap-10">
             {/* Formulario de Información Personal */}

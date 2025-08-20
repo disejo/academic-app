@@ -11,6 +11,7 @@ import Icon from '@mdi/react';
 import { mdiLogout } from '@mdi/js';
 import IconComponentEditProfile from '../components/iconWithTootltip/IconComponentEditProfile';
 import IconComponentDashboard from '../components/iconWithTootltip/IconComponentDashboard';
+import ThemeToggleButton from './ThemeToggleButton';
 
 
 interface UserProfile {
@@ -79,9 +80,11 @@ export default function NavBoard() {
           <LoadingSpinner />
         </div>
       ) : (
-        <nav className="bg-white dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
+        <nav className="bg-gray-300 dark:bg-gray-800 fixed w-full z-20 top-0 start-0 border-b border-gray-200 dark:border-gray-600">
           <div className="flex flex-wrap justify-between items-center mx-auto max-w-screen-xl p-2">
             <div className="flex items-center space-x-3 rtl:space-x-reverse">
+              <ThemeToggleButton />
+              
               <span className="text-sm capitalize text-gray-500 dark:text-white">Bienvenido, {userProfile?.name}!</span>
             </div>
             <div className="flex items-center space-x-6 rtl:space-x-reverse">

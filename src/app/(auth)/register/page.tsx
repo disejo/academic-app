@@ -50,7 +50,7 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-200 via-blue-200 to-purple-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-200 via-gray-200 to-purple-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div className="bg-white bg-opacity-90 p-8 rounded-xl shadow-lg w-full max-w-2xl dark:bg-gray-900 dark:bg-opacity-90">
         <h1 className="text-3xl font-bold mb-6 text-center text-green-900 dark:text-green-300">Registro de Usuario</h1>
         <form onSubmit={handleRegister} className="grid grid-cols-1 md:grid-cols-2 gap-6">

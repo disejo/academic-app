@@ -34,7 +34,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100 dark:bg-gray-900">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-200 via-gray-200 to-purple-200 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       <div style={{ position: 'absolute', top: 24, right: 24, zIndex: 10 }}>
         <ThemeToggleButton />
       </div>

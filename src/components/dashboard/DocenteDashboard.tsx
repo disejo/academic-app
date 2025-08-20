@@ -53,7 +53,7 @@ export default function DocenteDashboard() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 text-gray-100">
+      <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 text-gray-100 bg-white dark:text-white">
         Cargando datos del tablero...
       </div>
     );

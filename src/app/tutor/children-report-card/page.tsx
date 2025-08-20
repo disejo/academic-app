@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -185,7 +186,7 @@ export default function TutorChildrenReportCardPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading Tutor Dashboard...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">Loading Tutor Dashboard...</div>;
   }
 
   if (error && error.includes("No active academic cycle")) {
@@ -197,15 +198,15 @@ export default function TutorChildrenReportCardPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
+    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-white">
       <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">My Children's Report Cards</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center">Reporte de mis hijos</h1>
 
         {children.length === 0 ? (
-          <p className="text-center mb-4">No children associated with your account.</p>
+          <p className="text-center mb-4">Sin hijos asociados a Ud.</p>
         ) : (
           <div className="mb-6">
-            <label htmlFor="childSelect" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Select Child:</label>
+            <label htmlFor="childSelect" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Selecciona un hijo:</label>
             <select
               id="childSelect"
               className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -224,18 +225,18 @@ export default function TutorChildrenReportCardPage() {
         )}
 
         {selectedChildId && childGrades.length === 0 && !loading ? (
-          <p className="text-center">No grades found for the selected child in this academic cycle.</p>
+          <p className="text-center">No hay notas para mostrar.</p>
         ) : selectedChildId && childGrades.length > 0 ? (
           <div className="overflow-x-auto">
             <table className="min-w-full bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
               <thead>
                 <tr>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Subject</th>
-                  <th className="py-2 px-4 border-b dark:border-700 text-center">1st Trimester</th>
-                  <th className="py-2 px-4 border-b dark:border-700 text-center">2nd Trimester</th>
-                  <th className="py-2 px-4 border-b dark:border-700 text-center">3rd Trimester</th>
-                  <th className="py-2 px-4 border-b dark:border-700 text-center">Trimester Avg.</th>
-                  <th className="py-2 px-4 border-b dark:border-700 text-center">Final Avg.</th>
+                  <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Asignatura</th>
+                  <th className="py-2 px-4 border-b dark:border-700 text-center">1 Trimestre</th>
+                  <th className="py-2 px-4 border-b dark:border-700 text-center">2 Trimestre</th>
+                  <th className="py-2 px-4 border-b dark:border-700 text-center">3 Trimestre</th>
+                  <th className="py-2 px-4 border-b dark:border-700 text-center">Promedio.</th>
+                  <th className="py-2 px-4 border-b dark:border-700 text-center">Promedio Final.</th>
                 </tr>
               </thead>
               <tbody>

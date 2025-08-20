@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -12,6 +13,7 @@ import EstudianteDashboard from '@/components/dashboard/EstudianteDashboard';
 import DirectivoDashboard from '@/components/dashboard/DirectivoDashboard';
 import PreceptorDashboard from '@/components/dashboard/PreceptorDashboard';
 import TutorDashboard from '@/components/tutor/TutorDashboard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface UserProfile {
   name: string;
@@ -52,7 +54,9 @@ export default function DashboardPage() {
 
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">
+      <LoadingSpinner />
+    </div>;
   }
 
   if (!user || !userProfile) {
