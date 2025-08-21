@@ -6,6 +6,7 @@ import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface Student {
   id: string;
@@ -47,7 +48,11 @@ export default function StudentProgressPage() {
   }, [studentId]);
 
   if (loading) {
-    return <div className="text-center p-10  bg-white dark:bg-black text-gray-700 dark:text-white">Cargando progreso del estudiante...</div>;
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+          <LoadingSpinner />
+        </div>
+      );
   }
 
   if (error) {

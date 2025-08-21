@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface AcademicCycle {
   id: string;
@@ -146,7 +147,11 @@ export default function StudentReportCardPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading Report Card...</div>;
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+          <LoadingSpinner />
+        </div>
+      );
   }
 
   if (error && error.includes("No active academic cycle")) {

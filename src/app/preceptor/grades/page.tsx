@@ -10,6 +10,7 @@ import autoTable from 'jspdf-autotable';
 
 import Icon from '@mdi/react';
 import { mdiFilePdfBox } from '@mdi/js';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface AcademicCycle {
   id: string;
@@ -212,7 +213,11 @@ export default function PreceptorGradesPage() {
   );
 
   if (authLoading || loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+          <LoadingSpinner />
+        </div>
+      );
   }
 
   if (!user || !['PRECEPTOR', 'DIRECTIVO', 'ADMIN'].includes(user.role)) {

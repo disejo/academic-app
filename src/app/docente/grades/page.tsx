@@ -11,6 +11,7 @@ import autoTable from 'jspdf-autotable';
 import Icon from '@mdi/react';
 import { mdiFileExcel } from '@mdi/js';
 import { mdiFilePdfBox } from '@mdi/js';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 
 interface AcademicCycle {
@@ -360,7 +361,11 @@ export default function DocenteGradesPage() {
 
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">Cargando datos...</div>;
+    return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+      <LoadingSpinner />
+    </div>
+    );
   }
 
   if (error && error.includes("No se encontró un ciclo académico activo")) {

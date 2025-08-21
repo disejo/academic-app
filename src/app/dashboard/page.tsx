@@ -54,9 +54,11 @@ export default function DashboardPage() {
 
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">
+   return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
       <LoadingSpinner />
-    </div>;
+    </div>
+  );
   }
 
   if (!user || !userProfile) {

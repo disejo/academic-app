@@ -10,6 +10,7 @@ import TotalStudents from './components/TotalStudents';
 import BetterAverage from './components/BetterAverage';
 
 import { useRouter } from 'next/navigation';
+import { LoadingSpinner } from '../LoadingSpinner';
 
 export default function PreceptorDashboard() {
   const [loading, setLoading] = useState(true);
@@ -49,11 +50,11 @@ export default function PreceptorDashboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 text-gray-100">
-        Cargando datos del tablero...
-      </div>
-    );
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+      <LoadingSpinner />
+    </div>
+  );
   }
 
   if (error) {

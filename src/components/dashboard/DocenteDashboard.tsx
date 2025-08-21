@@ -10,6 +10,7 @@ import AssignedSubjects from './components/AssignedSubjects';
 import { useRouter } from 'next/navigation';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
+import { LoadingSpinner } from '../LoadingSpinner';
 
 // Main Dashboard Component
 export default function DocenteDashboard() {
@@ -52,11 +53,11 @@ export default function DocenteDashboard() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen dark:bg-gray-800 text-gray-100 bg-white dark:text-white">
-        Cargando datos del tablero...
-      </div>
-    );
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+      <LoadingSpinner />
+    </div>
+  );
   }
 
   if (error) {

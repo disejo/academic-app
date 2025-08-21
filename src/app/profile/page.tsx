@@ -6,6 +6,7 @@ import { auth, db } from '@/lib/firebase';
 import { onAuthStateChanged, updateProfile, updateEmail, updatePassword, EmailAuthProvider, reauthenticateWithCredential, User } from 'firebase/auth';
 import { doc, getDoc, updateDoc} from 'firebase/firestore';
 import { useRouter } from 'next/navigation';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function ProfilePage() {
   const [user, setUser] = useState<User | null>(null);
@@ -125,17 +126,21 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-    return <div className="flex justify-center items-center min-h-screen bg-white dark:bg-black text-gray-700 dark:text-white">Cargando...</div>;
+  return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+      <LoadingSpinner />
+    </div>
+  );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 flex justify-center py-12 px-4 sm:px-6 lg:px-8 mt-8">
-      <div className="w-full bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 flex justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="w-full p-8 rounded shadow-md bg-white dark:bg-gray-800 dark:text-amber-50">
         
         {error && <p className="text-red-500 text-center mb-4 p-3 bg-red-100 dark:bg-red-900/20 rounded-md">{error}</p>}
         {success && <p className="text-green-500 text-center mb-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-md">{success}</p>}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mt-8 bg-white dark:bg-black text-gray-700 dark:text-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white dark:bg-gray-900 p-8 rounded-md shadow-md text-gray-700 dark:text-white">
           {/* Columna Izquierda */}
           <div className="flex flex-col gap-10">
             {/* Formulario de Información Personal */}

@@ -6,6 +6,7 @@ import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, where, addDoc, updateDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import dynamic from 'next/dynamic';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface AcademicCycle {
   id: string;
@@ -170,7 +171,11 @@ export default function DocenteProgramsPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center bg-white dark:bg-black text-gray-700 dark:text-white">Cargando programas...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (error && error.includes("No se encontró un ciclo académico activo")) {

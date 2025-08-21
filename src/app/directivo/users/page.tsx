@@ -8,6 +8,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import Icon from '@mdi/react';
 import { mdiFilePdfBox } from '@mdi/js';
 import FilterSelect from "@/components/FilterSelect";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 // Interfaces
 interface Grade {
@@ -158,7 +159,11 @@ export default function EstudentUserGrade() {
   };
 
   if (initialLoading) {
-    return <div className="flex justify-center items-center min-h-screen">Cargando datos...</div>;
+      return (
+        <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+          <LoadingSpinner />
+        </div>
+      );
   }
 
   return (
@@ -173,8 +178,8 @@ export default function EstudentUserGrade() {
               onSelect={(selected) => setStudent(selected as Student)}
               optionLabelKey="name"
               optionValueKey="id"
-              placeholder="Buscar estudiante por nombre o DNI..."
-              initialValue={student}
+              placeholder="Buscar estudiante por Nombre o Apellido..."
+              initialValue={student ?? undefined}
             />
           </div>
           <div className="w-full md:w-1/3">
