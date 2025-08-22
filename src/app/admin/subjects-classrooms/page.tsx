@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, addDoc, deleteDoc, doc } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface Classroom {
   id: string;
@@ -88,7 +89,11 @@ export default function AssignSubjectsToClassroomPage() {
   };
   
   if (authLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   if (!user || !['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role ?? '')) {
@@ -96,12 +101,10 @@ export default function AssignSubjectsToClassroomPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">Asignar Asignaturas a Aulas</h1>
-
+    <div className="container w-full min-h-screen mx-auto p-4 text-gray-900 dark:text-gray-100 mt-14 bg-white dark:bg-gray-700">
+      <div className="mx-auto bg-white p-8 rounded-2xl shadow-md dark:bg-gray-900 dark:text-amber-50">
         <div className="mb-4">
-          <label htmlFor="classroom" className="block text-sm font-bold mb-2 dark:text-gray-300">Seleccione un Aula:</label>
+          <label htmlFor="classroom" className="block text-sm font-bold mb-2 dark:text-gray-300"><b>Asignar Asignaturas a Aulas</b> | Seleccione un Aula:</label>
           <select
             id="classroom"
             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"

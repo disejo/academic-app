@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { db, auth } from '@/lib/firebase';
 import { collection, addDoc, getDocs, query, orderBy, serverTimestamp, where, doc, updateDoc, deleteDoc, getDoc } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 interface Subject {
   id: string;
@@ -192,16 +193,18 @@ export default function SubjectsPage() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Cargando asignaturas...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">Gestión de Asignaturas</h1>
-
+    <div className="container w-full min-h-screen mx-auto p-4 text-gray-900 dark:text-gray-100 mt-14 bg-white dark:bg-gray-700">
+      <div className="mx-auto bg-white p-8 rounded-2xl shadow-md dark:bg-gray-900 dark:text-amber-50">
         <form onSubmit={handleCreateSubject} className="mb-8 p-6 border rounded-lg bg-gray-50 dark:bg-gray-800">
-          <h2 className="text-xl font-semibold mb-4">Crear nueva asignatura</h2>
+          <h2 className="text-xl font-semibold mb-4"><b>Gestión de Asignaturas</b> | Crear nueva asignatura:</h2>
           <div className="mb-4">
             <label htmlFor="subjectName" className="block text-gray-700 text-sm font-bold mb-2 dark:text-gray-300">Nombre de la asignatura:</label>
             <input
@@ -277,25 +280,50 @@ export default function SubjectsPage() {
         {subjects.length === 0 ? (
           <p>No se encontraron asignaturas.</p>
         ) : (
-          <ul className="space-y-4">
+          <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
             {subjects.map((subject) => (
-              <li key={subject.id} className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 flex justify-between items-center">
+              <li
+                key={subject.id}
+                className="p-4 border rounded-lg bg-gray-50 dark:bg-gray-800 flex flex-col justify-between"
+              >
                 <div>
                   <p className="font-bold">{subject.name}</p>
                   {subject.description && <p>{subject.description}</p>}
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Titular: {subject.titularName || 'N/A'}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Suplente: {subject.suplenteName || 'N/A'}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Auxiliar: {subject.auxiliarName || 'N/A'}</p>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Creado por: {subject.createdBy} el {subject.createdAt?.toDate ? new Date(subject.createdAt?.toDate()).toLocaleDateString() : ''}</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Titular: {subject.titularName || "N/A"}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Suplente: {subject.suplenteName || "N/A"}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Auxiliar: {subject.auxiliarName || "N/A"}
+                  </p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
+                    Creado por: {subject.createdBy} el{" "}
+                    {subject.createdAt?.toDate
+                      ? new Date(subject.createdAt?.toDate()).toLocaleDateString()
+                      : ""}
+                  </p>
                 </div>
-                <div className="flex space-x-2">
-                  <button onClick={() => handleEditClick(subject)} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Editar</button>
-                  <button onClick={() => handleDeleteClick(subject.id)} className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Eliminar</button>
+                <div className="flex space-x-2 mt-4">
+                  <button
+                    onClick={() => handleEditClick(subject)}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Editar
+                  </button>
+                  <button
+                    onClick={() => handleDeleteClick(subject.id)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                  >
+                    Eliminar
+                  </button>
                 </div>
               </li>
             ))}
           </ul>
         )}
+
       </div>
 
       {isModalOpen && editingSubject && (

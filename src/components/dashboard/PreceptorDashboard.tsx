@@ -39,6 +39,11 @@ export default function PreceptorDashboard() {
     await router.push('/admin/subjects');
   };
 
+  const handleClickEstudentGrades = async () => {
+    setLoading(true);
+    await router.push('directivo/users');
+  }
+
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -111,6 +116,13 @@ export default function PreceptorDashboard() {
             className="block items-center justify-center cursor-pointer bg-amber-700 hover:bg-amber-800 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Crear | Asignar Docentes a Asignaturas'}
+          </button>
+          <button
+            onClick={handleClickEstudentGrades}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Ver notas de Estudiante'}
           </button>
 
         </div>
