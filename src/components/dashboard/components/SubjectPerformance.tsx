@@ -16,6 +16,7 @@ interface ClassroomData {
 interface SubjectData {
   id: string;
   name: string;
+  titularId?: string;
 }
 
 interface StudentGrade {
@@ -38,15 +39,17 @@ export function SubjectPerformance() {
   const [error, setError] = useState<string | null>(null);
   const [approvedDisapprovedData, setApprovedDisapprovedData] = useState<any[]>([]);
   const [performanceOverTimeData, setPerformanceOverTimeData] = useState<any[]>([]);
+  const [studentCount, setStudentCount] = useState<number>(0);
+  const [titularTeacher, setTitularTeacher] = useState<string>('');
 
   useEffect(() => {
     const fetchClassrooms = async () => {
       setLoading(true);
       try {
         const classroomsSnapshot = await getDocs(collection(db, 'classrooms'));
-        const classroomsList = classroomsSnapshot.docs.map(doc => ({ 
-          id: doc.id, 
-          name: doc.data().name 
+        const classroomsList = classroomsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          name: doc.data().name
         }));
         setAvailableClassrooms(classroomsList);
       } catch (err) {
@@ -85,7 +88,8 @@ export function SubjectPerformance() {
           if (subjectDoc.exists()) {
             subjectsData.push({
               id: subjectDoc.id,
-              name: subjectDoc.data().name
+              name: subjectDoc.data().name,
+              titularId: subjectDoc.data().titularId
             });
           }
         }
@@ -103,9 +107,36 @@ export function SubjectPerformance() {
   }, [selectedClassroom]);
 
   useEffect(() => {
+    const fetchTitularTeacher = async () => {
+      if (selectedSubject) {
+        const subject = availableSubjectsForClassroom.find(s => s.id === selectedSubject);
+        if (subject && subject.titularId) {
+          try {
+            const teacherDoc = await getDoc(doc(db, 'users', subject.titularId));
+            if (teacherDoc.exists()) {
+              setTitularTeacher(teacherDoc.data().name || 'Nombre no encontrado');
+            } else {
+              setTitularTeacher('Docente no encontrado');
+            }
+          } catch (error) {
+            console.error('Error fetching teacher:', error);
+            setTitularTeacher('Error al cargar docente');
+          }
+        } else {
+          setTitularTeacher('No asignado');
+        }
+      } else {
+        setTitularTeacher('');
+      }
+    };
+    fetchTitularTeacher();
+  }, [selectedSubject, availableSubjectsForClassroom]);
+
+  useEffect(() => {
     if (!selectedClassroom || !selectedSubject) {
       setApprovedDisapprovedData([]);
       setPerformanceOverTimeData([]);
+      setStudentCount(0);
       return;
     }
 
@@ -119,6 +150,7 @@ export function SubjectPerformance() {
         );
         const enrollmentsSnapshot = await getDocs(enrollmentsQuery);
         const classroomStudentIds = enrollmentsSnapshot.docs.map(doc => doc.data().studentId);
+        setStudentCount(classroomStudentIds.length);
 
         if (classroomStudentIds.length === 0) {
           setApprovedDisapprovedData([]);
@@ -281,11 +313,13 @@ export function SubjectPerformance() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
           {/* Approved/Disapproved Pie Chart */}
           <div className="bg-gray-50 dark:bg-gray-800 p-4 rounded-lg border dark:border-gray-700">
-            <h3 className="text-xl font-semibold mb-4 text-gray-800 dark:text-gray-200">
+            <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">
               Alumnos Aprobados/Desaprobados
             </h3>
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-              {availableClassrooms.find(c => c.id === selectedClassroom)?.name} - {availableSubjectsForClassroom.find(s => s.id === selectedSubject)?.name}
+            <div className="text-sm text-gray-600 dark:text-gray-400 mb-4 border-b border-gray-200 dark:border-gray-700 pb-4">
+              <p className="font-semibold">{availableClassrooms.find(c => c.id === selectedClassroom)?.name} - {availableSubjectsForClassroom.find(s => s.id === selectedSubject)?.name}</p>
+              <p>Docente Titular: <span className="font-medium">{titularTeacher || 'Cargando...'}</span></p>
+              <p>Total de Alumnos: <span className="font-medium">{studentCount}</span></p>
             </div>
             
             {approvedDisapprovedData.length > 0 && (approvedDisapprovedData[0].value > 0 || approvedDisapprovedData[1].value > 0) ? (
@@ -298,7 +332,7 @@ export function SubjectPerformance() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name}: ${(percent ?? 0 * 100).toFixed(0)}%`}
                   >
                     <Cell key={`cell-0`} fill={COLORS[3]} />
                     <Cell key={`cell-1`} fill={COLORS[1]} />
