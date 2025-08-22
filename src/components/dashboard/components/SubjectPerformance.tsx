@@ -47,9 +47,9 @@ export function SubjectPerformance() {
       setLoading(true);
       try {
         const classroomsSnapshot = await getDocs(collection(db, 'classrooms'));
-        const classroomsList = classroomsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          name: doc.data().name
+        const classroomsList = classroomsSnapshot.docs.map(doc => ({ 
+          id: doc.id, 
+          name: doc.data().name 
         }));
         setAvailableClassrooms(classroomsList);
       } catch (err) {
@@ -174,8 +174,9 @@ export function SubjectPerformance() {
 
         let approved = 0;
         let disapproved = 0;
-        const studentIds = [...new Set(gradesForSelectedClassroomAndSubject.map(g => g.studentId))];
-        studentIds.forEach(studentId => {
+        const studentIdsWithGrades = [...new Set(gradesForSelectedClassroomAndSubject.map(g => g.studentId))];
+        
+        studentIdsWithGrades.forEach(studentId => {
           const studentGrades = gradesForSelectedClassroomAndSubject.filter(g => g.studentId === studentId);
           if (studentGrades.length > 0) {
             const average = studentGrades.reduce((sum, g) => sum + g.grade, 0) / studentGrades.length;
@@ -186,9 +187,13 @@ export function SubjectPerformance() {
             }
           }
         });
+
+        const notGraded = classroomStudentIds.length - studentIdsWithGrades.length;
+
         setApprovedDisapprovedData([
           { name: 'Aprobados', value: approved },
-          { name: 'Desaprobados', value: disapproved }
+          { name: 'Desaprobados', value: disapproved },
+          { name: 'No Calificados', value: notGraded > 0 ? notGraded : 0 }
         ]);
 
         const performanceByMonth: { name: string; average: number; }[] = [];
@@ -322,7 +327,7 @@ export function SubjectPerformance() {
               <p>Total de Alumnos: <span className="font-medium">{studentCount}</span></p>
             </div>
             
-            {approvedDisapprovedData.length > 0 && (approvedDisapprovedData[0].value > 0 || approvedDisapprovedData[1].value > 0) ? (
+            {approvedDisapprovedData.reduce((acc, entry) => acc + entry.value, 0) > 0 ? (
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
                   <Pie
@@ -332,10 +337,11 @@ export function SubjectPerformance() {
                     outerRadius={80}
                     fill="#8884d8"
                     dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent ?? 0 * 100).toFixed(0)}%`}
+                    label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                   >
-                    <Cell key={`cell-0`} fill={COLORS[3]} />
-                    <Cell key={`cell-1`} fill={COLORS[1]} />
+                    <Cell key={`cell-0`} fill={COLORS[3]} /> {/* Aprobados - green */}
+                    <Cell key={`cell-1`} fill={COLORS[1]} /> {/* Desaprobados - orange */}
+                    <Cell key={`cell-2`} fill={COLORS[2]} /> {/* No Calificados - yellow */}
                   </Pie>
                   <Tooltip contentStyle={{ backgroundColor: '#333', border: 'none' }} itemStyle={{ color: '#fff' }}/>
                   <Legend wrapperStyle={{ color: '#fff' }} />
