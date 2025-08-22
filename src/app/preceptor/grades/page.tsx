@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
@@ -220,7 +220,7 @@ export default function PreceptorGradesPage() {
       );
   }
 
-  if (!user || !['PRECEPTOR', 'DIRECTIVO', 'ADMIN'].includes(user.role)) {
+  if (!user || !['PRECEPTOR', 'DIRECTIVO', 'ADMIN'].includes(user.role ?? '')) {
     return <div className="min-h-screen flex items-center justify-center">Acceso denegado.</div>;
   }
 

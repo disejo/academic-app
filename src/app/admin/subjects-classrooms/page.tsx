@@ -91,7 +91,7 @@ export default function AssignSubjectsToClassroomPage() {
     return <div className="min-h-screen flex items-center justify-center">Cargando...</div>;
   }
 
-  if (!user || !['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role)) {
+  if (!user || !['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role ?? '')) {
     return <div className="min-h-screen flex items-center justify-center">Acceso denegado.</div>;
   }
 

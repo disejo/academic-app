@@ -39,7 +39,7 @@ const ClassroomDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string>('');
 
-  const canManage = user && ['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role);
+  const canManage = user && ['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role ?? '');
 
   // Effect to fetch basic data (classroom, all cycles, all students)
   useEffect(() => {

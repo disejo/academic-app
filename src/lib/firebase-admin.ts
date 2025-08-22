@@ -11,7 +11,11 @@ if (!admin.apps.length) {
       databaseURL: process.env.FIREBASE_DATABASE_URL, // Add this line
     });
   } catch (error) {
-    console.error("Firebase admin initialization error", error.stack);
+    if (error instanceof Error) {
+      console.error("Firebase admin initialization error", error.stack);
+    } else {
+      console.error("Firebase admin initialization error", error);
+    }
   }
 }
 

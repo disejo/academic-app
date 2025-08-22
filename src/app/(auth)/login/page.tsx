@@ -2,7 +2,6 @@
 import ThemeToggleButton from '@/components/ThemeToggleButton';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { useRouter } from 'next/navigation';
