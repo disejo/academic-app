@@ -9,6 +9,9 @@ const nextConfig: NextConfig = {
       // Add any necessary aliases here if you're mapping '@mdi/js' to a different location
     },
   },
+  experimental: {
+    optimizeCss: false
+  }
 };
 
 export default nextConfig;
