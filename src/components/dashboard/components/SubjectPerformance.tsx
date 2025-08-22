@@ -112,23 +112,46 @@ export function SubjectPerformance() {
     const fetchChartData = async () => {
       setLoadingCharts(true);
       try {
+        // 1. Get student IDs for the selected classroom
+        const enrollmentsQuery = query(
+          collection(db, 'classroom_enrollments'),
+          where('classroomId', '==', selectedClassroom)
+        );
+        const enrollmentsSnapshot = await getDocs(enrollmentsQuery);
+        const classroomStudentIds = enrollmentsSnapshot.docs.map(doc => doc.data().studentId);
+
+        if (classroomStudentIds.length === 0) {
+          setApprovedDisapprovedData([]);
+          setPerformanceOverTimeData([]);
+          setLoadingCharts(false);
+          return;
+        }
+
+        // 2. Get all grades for the selected subject
         const gradesQuery = query(
           collection(db, 'grades'),
           where('subjectId', '==', selectedSubject)
         );
         const gradesSnapshot = await getDocs(gradesQuery);
-        const gradesForSelectedClassroomAndSubject = gradesSnapshot.docs.map(doc => doc.data() as StudentGrade);
+        const allSubjectGrades = gradesSnapshot.docs.map(doc => doc.data() as StudentGrade);
+
+        // 3. Filter grades to include only students from the selected classroom
+        const gradesForSelectedClassroomAndSubject = allSubjectGrades.filter(grade => 
+          classroomStudentIds.includes(grade.studentId)
+        );
 
         let approved = 0;
         let disapproved = 0;
         const studentIds = [...new Set(gradesForSelectedClassroomAndSubject.map(g => g.studentId))];
         studentIds.forEach(studentId => {
           const studentGrades = gradesForSelectedClassroomAndSubject.filter(g => g.studentId === studentId);
-          const average = studentGrades.reduce((sum, g) => sum + g.grade, 0) / studentGrades.length;
-          if (average >= 7) {
-            approved++;
-          } else {
-            disapproved++;
+          if (studentGrades.length > 0) {
+            const average = studentGrades.reduce((sum, g) => sum + g.grade, 0) / studentGrades.length;
+            if (average >= 7) {
+              approved++;
+            } else {
+              disapproved++;
+            }
           }
         });
         setApprovedDisapprovedData([
@@ -156,8 +179,10 @@ export function SubjectPerformance() {
         });
         sortedMonths.forEach(month => {
           const grades = gradesByMonth.get(month) || [];
-          const average = grades.reduce((sum, g) => sum + g, 0) / grades.length;
-          performanceByMonth.push({ name: month, average: parseFloat(average.toFixed(2)) });
+          if (grades.length > 0) {
+            const average = grades.reduce((sum, g) => sum + g, 0) / grades.length;
+            performanceByMonth.push({ name: month, average: parseFloat(average.toFixed(2)) });
+          }
         });
         setPerformanceOverTimeData(performanceByMonth);
 
