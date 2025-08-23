@@ -19,7 +19,7 @@ const ClassroomsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const canCreate = user && ['admin', 'directivo'].includes(user.role ?? '');
+  const canCreate = user && ['ADMIN', 'DIRECTIVO'].includes(user.role ?? '');
 
   useEffect(() => {
     const q = query(collection(db, 'classrooms'), orderBy('createdAt', 'desc'));
@@ -70,9 +70,7 @@ const ClassroomsPage = () => {
   };
 
   return (
-    <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100">
-      <h1 className="text-3xl font-bold mb-6">Gestión de Aulas</h1>
-
+    <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100 mt-14">
       {canCreate && (
         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
           <h2 className="text-2xl font-semibold mb-4">Crear Nueva Aula</h2>

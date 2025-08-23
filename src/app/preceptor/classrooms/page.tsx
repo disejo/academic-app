@@ -20,7 +20,7 @@ const ClassroomsPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const canCreate = user && ['admin', 'directivo', 'preceptor'].includes(user.role ?? '');
+  const canCreate = user && ['ADMIN', 'DIRECTIVO'].includes(user.role ?? '');
 
   useEffect(() => {
     const q = query(collection(db, 'classrooms'), orderBy('createdAt', 'desc'));
