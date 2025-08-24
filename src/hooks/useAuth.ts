@@ -1,8 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 // src/hooks/useAuth.ts
 import { useState, useEffect } from 'react';
 import { auth, db } from '@/lib/firebase'; // Import Firebase client-side auth and db
 import { onAuthStateChanged } from 'firebase/auth';
 import { doc, getDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+
+
 
 interface UserProfile {
   uid: string;
@@ -14,6 +18,8 @@ interface UserProfile {
 export const useAuth = () => {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const Router = useRouter();
+
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -55,6 +61,7 @@ export const useAuth = () => {
         // User is signed out
         console.log("useAuth: No Firebase user detected.");
         setUser(null);
+        Router.push('/login'); // Redirect to login page
       }
       setLoading(false);
     });
