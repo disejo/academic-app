@@ -41,9 +41,13 @@ export default function PreceptorDashboard() {
 
   const handleClickEstudentGrades = async () => {
     setLoading(true);
-    await router.push('directivo/users');
+    await router.push('/directivo/users');
   }
 
+ const handleClickEstudentTutor = async () => {
+    setLoading(true);
+    await router.push('/preceptor/students/tutor');
+  }
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -123,6 +127,13 @@ export default function PreceptorDashboard() {
             className="block items-center justify-center cursor-pointer bg-cyan-700 hover:bg-cyan-800 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Ver notas de Estudiante'}
+          </button>
+          <button
+            onClick={handleClickEstudentTutor}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-fuchsia-800 hover:bg-fuchsia-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Gestion de Tutores y Estudiantes'}
           </button>
 
         </div>
