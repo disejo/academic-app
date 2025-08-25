@@ -141,7 +141,7 @@ const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps)
           id={`trimester-select-${studentId}`} 
           value={trimester} 
           onChange={(e) => setTrimester(Number(e.target.value))}
-          className="p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+          className="p-2 border rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
         >
           <option value={1}>Primero</option>
           <option value={2}>Segundo</option>

@@ -179,7 +179,7 @@ export default function TutorDashboard() {
   return (
     <div className="container mx-auto p-4 sm:p-6 mt-14 bg-white dark:bg-black text-gray-700 dark:text-white">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg">
+        <div className="p-6 bg-gray-300 dark:bg-gray-800 rounded-xl shadow-lg">
           <h3 className="text-2xl font-bold mb-5">Mis Hijos</h3>
           {loadingChildren ? <LoadingSpinner /> : myChildren.length > 0 ? (
             <ul className="space-y-4">
@@ -200,14 +200,14 @@ export default function TutorDashboard() {
               ))}
             </ul>
           ) : (
-            <div className="text-center py-10 px-4 bg-gray-50 dark:bg-gray-700/50 rounded-lg">
+            <div className="text-center py-10 px-4 bg-gray-200 dark:bg-gray-700/50 rounded-lg">
                  <p className="font-semibold text-gray-700 dark:text-gray-300">No hay hijos asociados</p>
                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Use el formulario de búsqueda para encontrar y asociar a su hijo.</p>
             </div>
           )}
         </div>
 
-        <div className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg text-gray-700 dark:text-white">
+        <div className="p-6 bg-gray-300 dark:bg-gray-800 rounded-xl shadow-lg text-gray-700 dark:text-white">
           <h3 className="text-2xl font-bold mb-5">Buscar y Asociar Hijo</h3>
           <form onSubmit={handleSearch} className="space-y-4">
             <div>
@@ -233,7 +233,7 @@ export default function TutorDashboard() {
               <h4 className="font-semibold text-lg text-gray-800 dark:text-gray-200">Resultados de la Búsqueda:</h4>
               <ul className="space-y-3 mt-3">
                 {searchResults.map(student => (
-                  <li key={student.id} className="flex justify-between items-center p-4 bg-gray-100 dark:bg-gray-700/50 rounded-lg">
+                  <li key={student.id} className="flex justify-between items-center p-4 bg-gray-300 dark:bg-gray-700/50 rounded-lg">
                     <div>
                         <p className="font-semibold text-gray-800 dark:text-gray-200">{student.name}</p>
                         <p className="text-sm text-gray-600 dark:text-gray-400">DNI: {student.dni}</p>

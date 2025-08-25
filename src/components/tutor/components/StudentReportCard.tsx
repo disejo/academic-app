@@ -124,7 +124,7 @@ export default function StudentReportCard({ studentId }: StudentReportCardProps)
 
   // Render Logic
   return (
-    <div className="p-4 sm:p-6 bg-white dark:bg-gray-800 rounded-xl shadow-lg mt-6 transition-all duration-300">
+    <div className="p-4 sm:p-6 bg-gray-200 dark:bg-gray-800 rounded-xl shadow-lg mt-6 transition-all duration-300">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
         <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Boletín de Calificaciones</h3>
         <div className="mt-4 sm:mt-0 w-full sm:w-auto sm:min-w-[250px]">
@@ -156,9 +156,9 @@ export default function StudentReportCard({ studentId }: StudentReportCardProps)
       )}
 
       {!loading && !error && (
-        <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-700/50">
+        <div className="overflow-x-auto rounded-lg border border-gray-400 dark:border-gray-700">
+          <table className="min-w-full divide-y divide-gray-400 dark:divide-gray-700">
+            <thead className="bg-gray-300 dark:bg-gray-700/50">
               <tr>
                 <th scope="col" className="px-6 py-4 text-left text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">Materia</th>
                 <th scope="col" className="px-6 py-4 text-center text-sm font-semibold text-gray-600 dark:text-gray-300 uppercase tracking-wider">1er Trim.</th>

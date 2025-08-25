@@ -63,12 +63,11 @@ const TutorChartsContainer = () => {
   }
   
   if (students.length === 0) {
-    return <div className="text-center p-8 bg-gray-100 rounded-lg">No tienes estudiantes asignados.</div>;
+    return <div className="text-center p-8 dark:bg-gray-800 bg-gray-300 rounded-lg mt-2">No tienes estudiantes asignados.</div>;
   }
 
   return (
-    <section className="w-ful">
-        <h2 className="text-2xl font-bold mb-6 mt-8 text-gray-800 dark:text-gray-200 p-2">Notas por trimestre</h2>
+    <section className="w-ful bg-gray-300 dark:bg-gray-800 rounded-lg mt-2">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-8">
             {students.map(student => (
                 <StudentGradesChart key={student.studentId} studentId={student.studentId} studentName={student.studentName} />
