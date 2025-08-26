@@ -27,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="es" data-theme="dark" suppressHydrationWarning>
       {/* <body>{children}</body> */}
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased bg-white dark:bg-gray-700`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <AuthNavWrapper />
         {children}
       </body>
