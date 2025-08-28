@@ -16,6 +16,7 @@ import { db } from '@/lib/firebase';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 // Interfaces
 interface Classroom { id: string; name: string; }
@@ -147,20 +148,30 @@ const ClassroomDetailPage = () => {
     }
   };
 
-  if (loading) return <div className="text-center p-10 dark:text-gray-200">Cargando datos del aula...</div>;
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+        <LoadingSpinner />
+    </div>
+    );
   if (loadingError) return <div className="text-center p-10 text-red-500">{loadingError}</div>;
   if (!classroom) return <div className="text-center p-10 dark:text-gray-200">Aula no encontrada.</div>;
 
   return (
     <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100">
-      <div className="mb-6">
-        <Link href="/admin/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a todas las aulas</Link>
-        <h1 className="text-3xl font-bold mt-2">Aula: {classroom.name}</h1>
-      </div>
+      <div className="mt-14"></div>
       
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
-        <h2 className="text-2xl font-semibold mb-4">Asignar Estudiantes</h2>
-        
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md ">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
+        <h2 className="text-2xl font-semibold mb-4 md:mb-0">
+            Asignar Estudiantes | {classroom.name}
+        </h2>
+        <Link
+            href="/admin/classrooms"
+            className="text-blue-600 dark:text-blue-400 hover:underline hidden md:inline"
+        >
+            &larr; Volver a todas las aulas
+        </Link>
+        </div>
         <div className="mb-4">
             <label htmlFor="academic-cycle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ciclo Lectivo</label>
             <select

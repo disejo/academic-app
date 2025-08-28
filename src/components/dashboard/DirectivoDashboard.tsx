@@ -47,6 +47,10 @@ export default function DirectivoDashboard() {
     await router.push('/directivo/users');
   };
 
+  const handleClickCycles = async () => {
+    setLoading(true);
+    await router.push('/admin/academic-cycles');
+  };
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -135,6 +139,13 @@ export default function DirectivoDashboard() {
             className="block items-center justify-center cursor-pointer bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Nota por Estudiante'}
+          </button>
+          <button
+            onClick={handleClickCycles}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Gestion de Ciclos Academicos'}
           </button>
 
         </div>

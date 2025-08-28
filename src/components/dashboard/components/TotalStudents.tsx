@@ -11,13 +11,14 @@ interface CardProps {
   title: string;
   value: string | number;
   description: string;
+  cicleActive: string | number;
 }
 
-const StatCard: React.FC<CardProps> = ({ title, value, description }) => (
+const StatCard: React.FC<CardProps> = ({ title, value, description, cicleActive }) => (
   <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md flex-1 min-w-[200px]">
     <div className="flex items-center">
       <Icon path={mdiAccountGroupOutline} size={1} />
-      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 ml-2">{title}</h3>
+      <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200 ml-2">{title}&nbsp;<span>{cicleActive}</span></h3>
     </div>
     <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mb-2">{value}</p>
     <p className="text-sm text-gray-500 dark:text-gray-300">{description}</p>
@@ -28,19 +29,22 @@ export default function TotalStudents() {
   const [totalStudents, setTotalStudents] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cicle, setCicle] = useState<string>("");
 
   useEffect(() => {
     const fetchTotalStudents = async () => {
       setLoading(true);
       setError(null);
       try {
-        const academicCyclesSnapshot = await getDocs(collection(db, 'academic-cycles'));
+        const academicCyclesSnapshot = await getDocs(collection(db, 'academicCycles'));
         const activeCycle = academicCyclesSnapshot.docs.find(doc => doc.data().isActive === true);
         const activeCycleId = activeCycle ? activeCycle.id : null;
-
-        let studentsQuery = query(collection(db, 'users'), where('role', '==', 'ESTUDIANTE'));
+        setCicle(activeCycle ? activeCycle.data().name : "");
+        const studentsQuery = query(collection(db, 'users'), where('role', '==', 'ESTUDIANTE'));
         if (activeCycleId) {
-          studentsQuery = query(studentsQuery, where('academicCycleId', '==', activeCycleId));
+          const classroomEnrollments = await getDocs(query(collection(db, 'classroom_enrollments'), where('academicCycleId', '==', activeCycleId)));
+          setTotalStudents(classroomEnrollments.docs.length);
+          return;
         }
         const studentsSnapshot = await getDocs(studentsQuery);
         setTotalStudents(studentsSnapshot.docs.length);
@@ -81,6 +85,7 @@ export default function TotalStudents() {
       title="Total de Estudiantes"
       value={totalStudents}
       description="Número total de estudiantes registrados en el ciclo activo."
+      cicleActive={cicle}
     />
   );
 }
