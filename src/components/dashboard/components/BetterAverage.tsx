@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, documentId } from 'firebase/firestore';
 import Icon from '@mdi/react';
 import { mdiSchoolOutline } from '@mdi/js';
 
@@ -20,6 +20,7 @@ interface StudentGrade {
   classroomId: string;
   timestamp?: any;
   updatedBy?: string;
+  academicCycleId?: string;
 }
 
 interface StudentData {
@@ -50,40 +51,46 @@ export default function BetterAverage() {
       setLoading(true);
       setError(null);
       try {
-        const academicCyclesSnapshot = await getDocs(collection(db, 'academic-cycles'));
+        const academicCyclesSnapshot = await getDocs(collection(db, 'academicCycles'));
         const activeCycle = academicCyclesSnapshot.docs.find(doc => doc.data().isActive === true);
         const activeCycleId = activeCycle ? activeCycle.id : null;
 
-        let studentsQuery = query(collection(db, 'users'), where('role', '==', 'ESTUDIANTE'));
-        if (activeCycleId) {
-          studentsQuery = query(studentsQuery, where('academicCycleId', '==', activeCycleId));
-        }
+        const studentsQuery = query(collection(db, 'users'), where('role', '==', 'ESTUDIANTE'));
         const studentsSnapshot = await getDocs(studentsQuery);
-        const studentsList = studentsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name, academicCycleId: doc.data().academicCycleId }));
+        const studentsList = studentsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name || 'Sin nombre', academicCycleId: doc.data().academicCycleId })) as StudentData[];
 
         const gradesSnapshot = await getDocs(collection(db, 'grades'));
         const fetchedGrades: StudentGrade[] = gradesSnapshot.docs.map(doc => doc.data() as StudentGrade);
 
+        // Agrupar solo las calificaciones del ciclo activo (si existe). Si no hay ciclo activo, usar todas las calificaciones.
         const studentGradesMap = new Map<string, number[]>();
         fetchedGrades.forEach(grade => {
-          if (!studentGradesMap.has(grade.studentId)) {
-            studentGradesMap.set(grade.studentId, []);
+          if (activeCycleId) {
+            if (grade.academicCycleId === activeCycleId) {
+              if (!studentGradesMap.has(grade.studentId)) studentGradesMap.set(grade.studentId, []);
+              studentGradesMap.get(grade.studentId)?.push(grade.grade);
+            }
+          } else {
+            // Sin ciclo activo, consideramos todas las calificaciones
+            if (!studentGradesMap.has(grade.studentId)) studentGradesMap.set(grade.studentId, []);
+            studentGradesMap.get(grade.studentId)?.push(grade.grade);
           }
-          studentGradesMap.get(grade.studentId)?.push(grade.grade);
         });
 
         const studentsWithAverages: StudentData[] = studentsList.map(student => {
           const grades = studentGradesMap.get(student.id) || [];
-          const averageGrade = grades.length > 0 
-            ? grades.reduce((sum, grade) => sum + grade, 0) / grades.length
+          const averageGrade = grades.length > 0
+            ? grades.reduce((sum, g) => sum + g, 0) / grades.length
             : 0;
           return { ...student, averageGrade: parseFloat(averageGrade.toFixed(2)) };
         });
 
         studentsWithAverages.sort((a, b) => b.averageGrade - a.averageGrade);
 
-        if (studentsWithAverages.length > 0) {
+        if (studentsWithAverages.length > 0 && studentsWithAverages[0].averageGrade > 0) {
           setBestStudent(studentsWithAverages[0]);
+        } else {
+          setBestStudent(null);
         }
       } catch (err: any) {
         console.error("Error fetching best student:", err);
@@ -120,7 +127,7 @@ export default function BetterAverage() {
   return (
     <StatCard 
       title="Mejor Promedio"
-      value={bestStudent ? `${bestStudent.name} (${bestStudent.averageGrade})` : "N/A"}
+      value={bestStudent ? `${bestStudent.name} (${bestStudent.averageGrade})` : "-"}
       description="Estudiante con el promedio más alto."
     />
   );

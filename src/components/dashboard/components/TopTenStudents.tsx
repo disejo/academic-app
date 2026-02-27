@@ -12,6 +12,7 @@ interface Student {
 interface Grade {
   studentId: string;
   grade: number;
+  academicCycleId?: string;
 }
 
 const TopTenStudents: React.FC = () => {
@@ -35,10 +36,14 @@ const TopTenStudents: React.FC = () => {
         const gradesCollection = collection(db, 'grades');
         const gradesSnapshot = await getDocs(gradesCollection);
         const gradesList = gradesSnapshot.docs.map(doc => doc.data() as Grade);
+        // Fetch active academic cycle
+        const academicCyclesSnapshot = await getDocs(collection(db, 'academicCycles'));
+        const activeCycle = academicCyclesSnapshot.docs.find(doc => doc.data().isActive === true);
+        const activeCycleId = activeCycle ? activeCycle.id : null;
 
         const studentGradesMap = new Map<string, number[]>();
         gradesList.forEach(grade => {
-          if (!studentGradesMap.has(grade.studentId)) {
+          if (!studentGradesMap.has(grade.studentId) && (grade.academicCycleId === activeCycleId)) {
             studentGradesMap.set(grade.studentId, []);
           }
           studentGradesMap.get(grade.studentId)?.push(grade.grade);

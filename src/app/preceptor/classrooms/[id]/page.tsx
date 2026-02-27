@@ -163,7 +163,7 @@ const ClassroomDetailPage = () => {
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
         <div className='flex justify-between items-center mb-4'>
             <h1 className="text-3xl font-bold mt-2">Aula: {classroom.name}</h1>
-            <Link href="/preceptor/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline">&larr; Volver a todas las aulas</Link>
+            <Link href="/preceptor/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline h-2">&larr; Volver a todas las aulas</Link>
         </div>
         <h2 className="text-2xl font-semibold mb-4">Asignar Estudiantes</h2>
         

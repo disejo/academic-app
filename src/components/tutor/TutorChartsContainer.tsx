@@ -67,7 +67,7 @@ const TutorChartsContainer = () => {
   }
 
   return (
-    <section className="w-ful bg-gray-300 dark:bg-gray-800 rounded-lg mt-2">
+    <section className="w-full p-4 sm:p-6 lg:p-8 bg-gray-100 dark:bg-gray-900 rounded-lg mt-4">
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-2 gap-8">
             {students.map(student => (
                 <StudentGradesChart key={student.studentId} studentId={student.studentId} studentName={student.studentName} />

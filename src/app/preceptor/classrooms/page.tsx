@@ -105,13 +105,14 @@ const ClassroomsPage = () => {
         ) : (
           <div className="space-y-3">
             {classrooms.map((classroom) => (
-              <Link key={classroom.id} href={`/preceptor/classrooms/${classroom.id}`} legacyBehavior>
-                <a className="block p-4 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
+              <Link key={classroom.id} href={`/preceptor/classrooms/${classroom.id}`} >
+                <span className="block p-4 bg-gray-50 dark:bg-gray-700 rounded-md border border-gray-200 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 hover:border-blue-500 dark:hover:border-blue-500 transition-colors">
                   <div className="flex justify-between items-center">
                     <span className="font-medium text-lg">{classroom.name}</span>
                     <span className="text-sm text-gray-500 dark:text-gray-400">Creada: {classroom.createdAt.toLocaleDateString()}</span>
                   </div>
-                </a>
+                </span>
+                <br/>
               </Link>
             ))}
           </div>

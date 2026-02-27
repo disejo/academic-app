@@ -24,6 +24,7 @@ interface StudentGrade {
   grade: number;
   subjectId: string;
   updatedAt?: any;
+  academicCycleId?: string;
 }
 
 const COLORS = ['#0088FE', '#FF8042', '#FFBB28', '#00C49F', '#FF0000'];
@@ -143,11 +144,22 @@ export function SubjectPerformance() {
     const fetchChartData = async () => {
       setLoadingCharts(true);
       try {
+        // Obtener ciclo lectivo activo
+        const academicCyclesSnapshot = await getDocs(collection(db, 'academicCycles'));
+        const activeCycle = academicCyclesSnapshot.docs.find(doc => doc.data().isActive === true);
+        const activeCycleId = activeCycle ? activeCycle.id : null;
+
         // 1. Get student IDs for the selected classroom
-        const enrollmentsQuery = query(
-          collection(db, 'classroom_enrollments'),
-          where('classroomId', '==', selectedClassroom)
-        );
+        const enrollmentsQuery = activeCycleId
+          ? query(
+              collection(db, 'classroom_enrollments'),
+              where('classroomId', '==', selectedClassroom),
+              where('academicCycleId', '==', activeCycleId)
+            )
+          : query(
+              collection(db, 'classroom_enrollments'),
+              where('classroomId', '==', selectedClassroom)
+            );
         const enrollmentsSnapshot = await getDocs(enrollmentsQuery);
         const classroomStudentIds = enrollmentsSnapshot.docs.map(doc => doc.data().studentId);
         setStudentCount(classroomStudentIds.length);
@@ -160,10 +172,16 @@ export function SubjectPerformance() {
         }
 
         // 2. Get all grades for the selected subject
-        const gradesQuery = query(
-          collection(db, 'grades'),
-          where('subjectId', '==', selectedSubject)
-        );
+        const gradesQuery = activeCycleId
+          ? query(
+              collection(db, 'grades'),
+              where('subjectId', '==', selectedSubject),
+              where('academicCycleId', '==', activeCycleId)
+            )
+          : query(
+              collection(db, 'grades'),
+              where('subjectId', '==', selectedSubject)
+            );
         const gradesSnapshot = await getDocs(gradesQuery);
         const allSubjectGrades = gradesSnapshot.docs.map(doc => doc.data() as StudentGrade);
 

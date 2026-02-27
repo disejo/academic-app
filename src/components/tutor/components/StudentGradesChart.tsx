@@ -82,6 +82,8 @@ const themeColors = {
 // --- Main Component ---
 const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps) => {
   const [allGrades, setAllGrades] = useState<ChartData[]>([]);
+  const [academicCycles, setAcademicCycles] = useState<{ id: string; name?: string; isActive?: boolean }[]>([]);
+  const [selectedCycleId, setSelectedCycleId] = useState<string | null>(null);
   const [trimester, setTrimester] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const theme = useTheme();
@@ -97,7 +99,11 @@ const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps)
           subjectMap.set(doc.id, doc.data().name);
         });
 
-        const gradesQuery = query(collection(db, 'grades'), where('studentId', '==', studentId));
+        // Construir query de calificaciones filtrando por estudiante y, si existe, por ciclo lectivo
+        const gradesCollection = collection(db, 'grades');
+        const gradesQuery = selectedCycleId
+          ? query(gradesCollection, where('studentId', '==', studentId), where('academicCycleId', '==', selectedCycleId))
+          : query(gradesCollection, where('studentId', '==', studentId));
         const gradesSnapshot = await getDocs(gradesQuery);
 
         const studentGrades = gradesSnapshot.docs.map(doc => {
@@ -117,13 +123,30 @@ const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps)
     };
 
     fetchGrades();
-  }, [studentId]);
+  }, [studentId, selectedCycleId]);
+
+  // Obtener ciclos lectivos y seleccionar el activo por defecto
+  useEffect(() => {
+    const fetchCycles = async () => {
+      try {
+        const cyclesSnapshot = await getDocs(collection(db, 'academicCycles'));
+        const cycles = cyclesSnapshot.docs.map(doc => ({ id: doc.id, ...(doc.data() as any) }));
+        setAcademicCycles(cycles);
+        const active = cycles.find(c => c.isActive === true);
+        if (active) setSelectedCycleId(active.id);
+      } catch (err) {
+        console.error('Error fetching academic cycles', err);
+      }
+    };
+
+    fetchCycles();
+  }, []);
 
   const filteredData = allGrades.filter(data => data.trimester === trimester);
 
   if (loading) {
     return (
-        <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md w-full h-[400px] flex justify-center items-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md w-full h-[400px] flex justify-center items-center">
         <div className="flex justify-center items-center py-12">
            <span className="w-16 h-16 border-4 border-blue-500 border-dashed rounded-full animate-spin"></span>
         </div>
@@ -132,7 +155,7 @@ const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps)
   }
 
   return (
-    <div className='dark:bg-gray-700 mb-8 rounded-lg overflow-hidden p-4'>
+    <div className='dark:bg-gray-700 rounded-lg overflow-hidden p-8 shadow-md'>
     <div className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md w-full h-full flex flex-col min-h-[400px]">
       <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">{studentName}</h3>
       <div className="mb-4">
@@ -141,11 +164,24 @@ const StudentGradesChart = ({ studentId, studentName }: StudentGradesChartProps)
           id={`trimester-select-${studentId}`} 
           value={trimester} 
           onChange={(e) => setTrimester(Number(e.target.value))}
-          className="p-2 border rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+          className="p-2 border rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500 mr-4"
         >
           <option value={1}>Primero</option>
           <option value={2}>Segundo</option>
           <option value={3}>Tercer</option>
+        </select>
+
+        <label htmlFor={`cycle-select-${studentId}`} className="mr-2 font-medium text-gray-700 dark:text-gray-300">Ciclo: </label>
+        <select
+          id={`cycle-select-${studentId}`}
+          value={selectedCycleId ?? ''}
+          onChange={(e) => setSelectedCycleId(e.target.value || null)}
+          className="p-2 border rounded-md bg-gray-200 dark:bg-gray-700 dark:text-white dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500"
+        >
+          <option value="">Todos</option>
+          {academicCycles.map(cycle => (
+            <option key={cycle.id} value={cycle.id}>{cycle.name || cycle.id}{cycle.isActive ? ' (activo)' : ''}</option>
+          ))}
         </select>
       </div>
       <div className="flex-grow">
