@@ -23,32 +23,55 @@ const TopTenStudents: React.FC = () => {
   useEffect(() => {
     const fetchTopTenStudents = async () => {
       try {
-        const usersCollection = collection(db, 'users');
-        const studentsQuery = query(usersCollection, where('role', '==', 'ESTUDIANTE'));
-        const studentsSnapshot = await getDocs(studentsQuery);
-        const studentsList = studentsSnapshot.docs.map(doc => ({
-          id: doc.id,
-          name: doc.data().name,
-          dni: doc.data().dni,
-          averageGrade: 0, // Initialize with 0
-        })) as Student[];
-
-        const gradesCollection = collection(db, 'grades');
-        const gradesSnapshot = await getDocs(gradesCollection);
-        const gradesList = gradesSnapshot.docs.map(doc => doc.data() as Grade);
         // Fetch active academic cycle
         const academicCyclesSnapshot = await getDocs(collection(db, 'academicCycles'));
         const activeCycle = academicCyclesSnapshot.docs.find(doc => doc.data().isActive === true);
         const activeCycleId = activeCycle ? activeCycle.id : null;
 
+        if (!activeCycleId) {
+          setError('No hay un ciclo académico activo.');
+          setLoading(false);
+          return;
+        }
+
+        // Fetch grades for active cycle only
+        const gradesCollection = collection(db, 'grades');
+        const gradesSnapshot = await getDocs(gradesCollection);
+        const gradesList = gradesSnapshot.docs
+          .map(doc => doc.data() as Grade)
+          .filter(grade => grade.academicCycleId === activeCycleId);
+
+        // Get unique student IDs from grades
+        const studentIdsInCycle = new Set(gradesList.map(grade => grade.studentId));
+
+        if (studentIdsInCycle.size === 0) {
+          setStudents([]);
+          setLoading(false);
+          return;
+        }
+
+        // Fetch only students that are registered in the active cycle
+        const usersCollection = collection(db, 'users');
+        const studentsSnapshot = await getDocs(usersCollection);
+        const studentsList = studentsSnapshot.docs
+          .filter(doc => doc.data().role === 'ESTUDIANTE' && studentIdsInCycle.has(doc.id))
+          .map(doc => ({
+            id: doc.id,
+            name: doc.data().name,
+            dni: doc.data().dni,
+            averageGrade: 0,
+          })) as Student[];
+
+        // Calculate averages using only active cycle grades
         const studentGradesMap = new Map<string, number[]>();
         gradesList.forEach(grade => {
-          if (!studentGradesMap.has(grade.studentId) && (grade.academicCycleId === activeCycleId)) {
+          if (!studentGradesMap.has(grade.studentId)) {
             studentGradesMap.set(grade.studentId, []);
           }
           studentGradesMap.get(grade.studentId)?.push(grade.grade);
         });
 
+        // Map students with their calculated averages
         const studentsWithAverages = studentsList.map(student => {
           const grades = studentGradesMap.get(student.id) || [];
           const averageGrade = grades.length > 0
@@ -57,8 +80,8 @@ const TopTenStudents: React.FC = () => {
           return { ...student, averageGrade: parseFloat(averageGrade.toFixed(2)) };
         });
 
+        // Sort by average grade descending and take top 10
         studentsWithAverages.sort((a, b) => b.averageGrade - a.averageGrade);
-
         setStudents(studentsWithAverages.slice(0, 10));
 
       } catch (err) {
@@ -78,6 +101,15 @@ const TopTenStudents: React.FC = () => {
 
   if (error) {
     return <p>{error}</p>;
+  }
+
+  if (students.length === 0) {
+    return (
+      <div className="bg-white dark:bg-gray-700 p-6 rounded-lg shadow-md mb-8">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">Top 10 Estudiantes</h2>
+        <p className="text-gray-600 dark:text-gray-400">No hay estudiantes registrados en el ciclo académico activo.</p>
+      </div>
+    );
   }
 
   return (
