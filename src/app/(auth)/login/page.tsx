@@ -37,7 +37,7 @@ export default function LoginPage() {
       <div style={{ position: 'absolute', top: 24, right: 24, zIndex: 10 }}>
         <ThemeToggleButton />
       </div>
-      <div className="bg-white p-8 rounded shadow-md w-full max-w-md dark:bg-gray-900">
+      <div className="bg-white p-8 rounded shadow-md max-w-md dark:bg-gray-900 md:w-full">
       <h1 className="text-2xl font-bold mb-6 text-center text-blue-900 dark:text-blue-300">Iniciar Sesión</h1>
         <form onSubmit={handleLogin}>
           <div className="group mb-4">
