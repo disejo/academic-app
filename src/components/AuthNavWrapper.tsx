@@ -11,7 +11,7 @@ export default function AuthNavWrapper() {
   }
 
   if (user) {
-    return <Nav />;
+    return <><Nav /><p>Welcome, {user.email}!</p></>;
   }
 
   return null;
