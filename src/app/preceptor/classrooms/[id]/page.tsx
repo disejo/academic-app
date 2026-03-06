@@ -38,6 +38,8 @@ const ClassroomDetailPage = () => {
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string>('');
+  const [filterByName, setFilterByName] = useState<string>('');
+  const [filterByDni, setFilterByDni] = useState<string>('');
 
   const canManage = user && ['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role ?? '');
 
@@ -113,8 +115,12 @@ const ClassroomDetailPage = () => {
 
   // Memoized list of available students
   const availableStudents = useMemo(() => {
-    return allStudents.filter(s => !allEnrolledStudentIds.has(s.id));
-  }, [allStudents, allEnrolledStudentIds]);
+    return allStudents.filter(s => 
+      !allEnrolledStudentIds.has(s.id) &&
+      s.name.toLowerCase().includes(filterByName.toLowerCase()) &&
+      (s as any).dni?.toLowerCase().includes(filterByDni.toLowerCase())
+    );
+  }, [allStudents, allEnrolledStudentIds, filterByName, filterByDni]);
 
   // Handlers
   const handleEnrollStudent = async (student: Student) => {
@@ -186,6 +192,31 @@ const ClassroomDetailPage = () => {
         </div>
 
         {canManage && selectedCycleId && (
+            <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label htmlFor="filter-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrar por Nombre</label>
+                    <input
+                        id="filter-name"
+                        type="text"
+                        placeholder="Buscar por nombre..."
+                        value={filterByName}
+                        onChange={(e) => setFilterByName(e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="filter-dni" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrar por DNI</label>
+                    <input
+                        id="filter-dni"
+                        type="text"
+                        placeholder="Buscar por DNI..."
+                        value={filterByDni}
+                        onChange={(e) => setFilterByDni(e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                 <div>
                     <h3 className="text-xl font-semibold mb-3">Estudiantes Disponibles</h3>
@@ -223,6 +254,7 @@ const ClassroomDetailPage = () => {
                     </div>
                 </div>
             </div>
+            </>
         )}
 
         </div>

@@ -60,6 +60,12 @@ export default function ProfilePage() {
     setSuccess(null);
     if (!user) return;
 
+    // Validar que el usuario tenga los roles permitidos
+    if (!role || !['ADMIN', 'DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(role)) {
+      setError('No tienes permiso para actualizar tu nombre.');
+      return;
+    }
+
     setIsSubmittingProfile(true);
     try {
       await updateProfile(user, { displayName: name });
@@ -149,11 +155,20 @@ export default function ProfilePage() {
               <h2 className="text-xl font-semibold mb-4">Información Personal</h2>
               <div className="mb-4">
                 <label htmlFor="name" className="block text-sm font-bold mb-2">Nombre:</label>
-                <input type="text" id="name" value={name} onChange={(e) => setName(e.target.value)} className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800" />
+                <input 
+                  type="text" 
+                  id="name" 
+                  value={name} 
+                  onChange={(e) => setName(e.target.value)} 
+                  readOnly={!role || !['ADMIN', 'DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(role)}
+                  className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" 
+                />
               </div>
-              <button type="submit" disabled={isSubmittingProfile} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400">
-                {isSubmittingProfile ? 'Actualizando...' : 'Actualizar Nombre'}
-              </button>
+              {role && ['ADMIN', 'DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(role) && (
+                <button type="submit" disabled={isSubmittingProfile} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400">
+                  {isSubmittingProfile ? 'Actualizando...' : 'Actualizar Nombre'}
+                </button>
+              )}
             </form>
 
             {/* Formulario de Actualizar Email */}

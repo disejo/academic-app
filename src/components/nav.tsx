@@ -92,9 +92,11 @@ export default function NavBoard() {
               <Link href={'/dashboard'}>
                 <IconComponentDashboard direction={180} path={'/dashboard'} tooltipText={"Dashboard"} />
               </Link>
-              <Link href={'/topic-book'}>
-                <IconComponentTopicBook direction={180} path={'/topic-book'} tooltipText={"Temas"} />
-              </Link>
+              {userProfile && ['DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(userProfile.role) && (
+                <Link href={'/topic-book'}>
+                  <IconComponentTopicBook direction={180} path={'/topic-book'} tooltipText={"Temas"} />
+                </Link>
+              )}
               <Link href={'/profile'}>
                 <IconComponentEditProfile direction={180} path={'/profile'} tooltipText={"Perfil"} />
               </Link>

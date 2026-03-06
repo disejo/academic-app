@@ -16,7 +16,6 @@ import { db } from '@/lib/firebase';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 // Interfaces
 interface Classroom { id: string; name: string; }
@@ -28,6 +27,7 @@ const ClassroomDetailPage = () => {
   const params = useParams();
   const classroomId = params.id as string;
   const { user } = useAuth();
+  console.log("Current user:", user);
 
   // State
   const [classroom, setClassroom] = useState<Classroom | null>(null);
@@ -38,6 +38,8 @@ const ClassroomDetailPage = () => {
   const [selectedCycleId, setSelectedCycleId] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string>('');
+  const [filterByName, setFilterByName] = useState<string>('');
+  const [filterByDni, setFilterByDni] = useState<string>('');
 
   const canManage = user && ['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role ?? '');
 
@@ -63,6 +65,8 @@ const ClassroomDetailPage = () => {
         if (cycles.length > 0) {
             setSelectedCycleId(cycles[0].id);
         }
+        console.log("Fetched academic cycles:", cycles);
+        console.log("Selected cycle ID:", cycles.length > 0 ? cycles[0].id : "No cycles available");
     };
 
     const fetchStudents = async () => {
@@ -111,8 +115,12 @@ const ClassroomDetailPage = () => {
 
   // Memoized list of available students
   const availableStudents = useMemo(() => {
-    return allStudents.filter(s => !allEnrolledStudentIds.has(s.id));
-  }, [allStudents, allEnrolledStudentIds]);
+    return allStudents.filter(s => 
+      !allEnrolledStudentIds.has(s.id) &&
+      s.name.toLowerCase().includes(filterByName.toLowerCase()) &&
+      (s as any).dni?.toLowerCase().includes(filterByDni.toLowerCase())
+    );
+  }, [allStudents, allEnrolledStudentIds, filterByName, filterByDni]);
 
   // Handlers
   const handleEnrollStudent = async (student: Student) => {
@@ -148,30 +156,23 @@ const ClassroomDetailPage = () => {
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
-        <LoadingSpinner />
-    </div>
-    );
-  if (loadingError) return <div className="text-center p-10 text-red-500">{loadingError}</div>;
-  if (!classroom) return <div className="text-center p-10 dark:text-gray-200">Aula no encontrada.</div>;
+  console.log("canManage:", canManage);
+  console.log("selectedCycleId:", selectedCycleId);
+
+  if (loading) return <div className="text-center p-10 dark:text-gray-200 mt-14">Cargando datos del aula...</div>;
+  if (loadingError) return <div className="text-center p-10 text-red-500 mt-14">{loadingError}</div>;
+  if (!classroom) return <div className="text-center p-10 dark:text-gray-200 mt-14">Aula no encontrada.</div>;
 
   return (
-    <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100">
-      <div className="mt-14"></div>
+    <div className="container mx-auto p-4 text-gray-900 dark:text-gray-100 mt-14">
       
-      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md ">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-3">
-        <h2 className="text-2xl font-semibold mb-4 md:mb-0">
-            Asignar Estudiantes | {classroom.name}
-        </h2>
-        <Link
-            href="/admin/classrooms"
-            className="text-blue-600 dark:text-blue-400 hover:underline hidden md:inline"
-        >
-            &larr; Volver a todas las aulas
-        </Link>
+      <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md mb-6">
+        <div className='flex justify-between items-center mb-4'>
+            <h1 className="text-3xl font-bold mt-2">Aula: {classroom.name}</h1>
+            <Link href="/preceptor/classrooms" className="text-blue-600 dark:text-blue-400 hover:underline h-2">&larr; Volver a todas las aulas</Link>
         </div>
+        <h2 className="text-2xl font-semibold mb-4">Asignar Estudiantes</h2>
+        
         <div className="mb-4">
             <label htmlFor="academic-cycle" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Ciclo Lectivo</label>
             <select
@@ -179,19 +180,43 @@ const ClassroomDetailPage = () => {
                 value={selectedCycleId}
                 onChange={(e) => setSelectedCycleId(e.target.value)}
                 className="w-full p-2 border rounded-md bg-gray-50 dark:bg-gray-700 dark:border-gray-600"
-                disabled={academicCycles.length === 0}
             >
                 {academicCycles.length > 0 ? (
                     academicCycles.map(cycle => (
                         <option key={cycle.id} value={cycle.id}>{cycle.name}</option>
                     ))
                 ) : (
-                    <option>No hay ciclos lectivos activos</option>
+                    <option value="" disabled>No hay ciclos lectivos activos</option>
                 )}
             </select>
         </div>
 
         {canManage && selectedCycleId && (
+            <>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label htmlFor="filter-name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrar por Nombre</label>
+                    <input
+                        id="filter-name"
+                        type="text"
+                        placeholder="Buscar por nombre..."
+                        value={filterByName}
+                        onChange={(e) => setFilterByName(e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                </div>
+                <div>
+                    <label htmlFor="filter-dni" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filtrar por DNI</label>
+                    <input
+                        id="filter-dni"
+                        type="text"
+                        placeholder="Buscar por DNI..."
+                        value={filterByDni}
+                        onChange={(e) => setFilterByDni(e.target.value)}
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                    />
+                </div>
+            </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6">
                 <div>
                     <h3 className="text-xl font-semibold mb-3">Estudiantes Disponibles</h3>
@@ -229,28 +254,10 @@ const ClassroomDetailPage = () => {
                     </div>
                 </div>
             </div>
+            </>
         )}
 
-        {user && user.role === 'docente' && selectedCycleId && (
-            <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-3">Estudiantes Inscritos</h3>
-                <div className="h-96 overflow-y-auto border rounded-md p-2 bg-white dark:bg-gray-900 dark:border-gray-700">
-                    {enrolledInThisClass.length > 0 ? (
-                        <ul>
-                            {enrolledInThisClass.map(enrollment => (
-                                <li key={enrollment.id} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-md">
-                                    <span>{enrollment.studentName}</span>
-                                </li>
-                            ))}
-                        </ul>
-                    ) : (
-                        <p className="text-center text-gray-500 dark:text-gray-400 p-4">No hay estudiantes inscritos en esta aula para el ciclo seleccionado.</p>
-                    )}
-                </div>
-            </div>
-        )}
-
-      </div>
+        </div>
     </div>
   );
 };

@@ -8,6 +8,7 @@ import { db, auth } from '@/lib/firebase';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { onAuthStateChanged } from 'firebase/auth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import Link from 'next/link';
 
 interface AcademicCycle {
   id: string;
@@ -101,15 +102,20 @@ export default function StudentReportCardPage() {
       // Process grades to calculate averages
       const processedGrades: { [key: string]: SubjectGrades } = {};
 
+      // Solo inicializar las materias que tienen notas del estudiante
+      const subjectsWithGrades = new Set(fetchedGrades.map(g => g.subjectId));
+
       fetchedSubjects.forEach(subject => {
-        processedGrades[subject.id] = {
-          subjectName: subject.name,
-          trimester1: '-',
-          trimester2: '-',
-          trimester3: '-',
-          trimesterAverage: '-',
-          finalAverage: '-',
-        };
+        if (subjectsWithGrades.has(subject.id)) {
+          processedGrades[subject.id] = {
+            subjectName: subject.name,
+            trimester1: '-',
+            trimester2: '-',
+            trimester3: '-',
+            trimesterAverage: '-',
+            finalAverage: '-',
+          };
+        }
       });
 
       fetchedGrades.forEach(grade => {
@@ -166,38 +172,43 @@ export default function StudentReportCardPage() {
   }
 
   return (
-    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800">
-      <div className="max-w-4xl mx-auto bg-white p-8 rounded shadow-md dark:bg-gray-900 dark:text-amber-50">
-        <h1 className="text-2xl font-bold mb-6 text-center">My Report Card</h1>
+    <div className="min-h-screen p-4 bg-gray-100 dark:bg-gray-800 mt-14">
+      <div className="w-full bg-white dark:bg-gray-900 p-8 rounded-lg shadow-md">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">Mi Boletín de Calificaciones</h1>
+          <Link href="/dashboard" className="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 font-semibold">
+            ← Volver al Dashboard
+          </Link>
+        </div>
 
         {activeAcademicCycle && (
-          <p className="mb-4 text-center text-lg font-medium">Academic Cycle: {activeAcademicCycle.name}</p>
+          <p className="mb-6 text-center text-lg font-medium text-gray-700 dark:text-gray-300">Ciclo Académico: {activeAcademicCycle.name}</p>
         )}
 
         {studentGrades.length === 0 ? (
-          <p className="text-center">No grades found for this academic cycle.</p>
+          <p className="text-center text-gray-600 dark:text-gray-400 py-8">No hay calificaciones disponibles para este ciclo académico.</p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-200 dark:bg-gray-800 dark:border-gray-700">
-              <thead>
+            <table className="min-w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
+              <thead className="bg-blue-50 dark:bg-gray-700">
                 <tr>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-left">Subject</th>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-center">1st Trimester</th>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-center">2nd Trimester</th>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-center">3rd Trimester</th>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-center">Trimester Avg.</th>
-                  <th className="py-2 px-4 border-b dark:border-gray-700 text-center">Final Avg.</th>
+                  <th className="py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-left font-semibold text-gray-900 dark:text-gray-100">Materia</th>
+                  <th className="py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-center font-semibold text-gray-900 dark:text-gray-100">1er Trimestre</th>
+                  <th className="py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-center font-semibold text-gray-900 dark:text-gray-100">2do Trimestre</th>
+                  <th className="py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-center font-semibold text-gray-900 dark:text-gray-100">3er Trimestre</th>
+                  <th className="py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-center font-semibold text-gray-900 dark:text-gray-100">Prom. Trimestral</th>
+                  <th className="py-3 px-4 border-b border-gray-200 dark:border-gray-700 text-center font-semibold text-gray-900 dark:text-gray-100">Prom. Final</th>
                 </tr>
               </thead>
               <tbody>
                 {studentGrades.map((data, index) => (
-                  <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                    <td className="py-2 px-4 border-b dark:border-gray-700">{data.subjectName}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700 text-center">{data.trimester1}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700 text-center">{data.trimester2}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700 text-center">{data.trimester3}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700 text-center font-semibold">{data.trimesterAverage}</td>
-                    <td className="py-2 px-4 border-b dark:border-gray-700 text-center font-bold">{data.finalAverage}</td>
+                  <tr key={index} className="hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700">
+                    <td className="py-3 px-4 text-gray-900 dark:text-gray-100 font-medium">{data.subjectName}</td>
+                    <td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">{data.trimester1}</td>
+                    <td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">{data.trimester2}</td>
+                    <td className="py-3 px-4 text-center text-gray-700 dark:text-gray-300">{data.trimester3}</td>
+                    <td className="py-3 px-4 text-center font-semibold text-gray-900 dark:text-gray-100">{data.trimesterAverage}</td>
+                    <td className="py-3 px-4 text-center font-bold text-blue-600 dark:text-blue-400">{data.finalAverage}</td>
                   </tr>
                 ))}
               </tbody>
