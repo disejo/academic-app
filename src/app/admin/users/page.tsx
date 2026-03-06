@@ -4,6 +4,8 @@
 import { useState, useEffect } from 'react';
 import { db } from '@/lib/firebase';
 import { collection, query, where, getDocs } from 'firebase/firestore';
+import { useAuth } from '@/hooks/useAuth';
+import {LoadingSpinner} from '@/components/LoadingSpinner';
 
 // NOTE: To enable bulk upload, you must install a spreadsheet library.
 // Run the following command in your terminal:
@@ -17,6 +19,7 @@ interface Tutor {
 }
 
 export default function CreateUserPage() {
+  const { user, loading: authLoading } = useAuth();
   const [name, setName] = useState('');
   const [dni, setDni] = useState('');
   const [email, setEmail] = useState('');
@@ -29,7 +32,6 @@ export default function CreateUserPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadingTutors, setLoadingTutors] = useState(true);
-
 
   useEffect(() => {
     const fetchTutors = async () => {
@@ -51,6 +53,27 @@ export default function CreateUserPage() {
     };
     fetchTutors();
   }, []);
+
+  // Check if user has admin or directivo role
+  if (authLoading) {
+    return <LoadingSpinner />;
+  }
+
+  if (!user || !user.role || !['ADMIN', 'DIRECTIVO'].includes(user.role)) {
+    return (
+      <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14 flex items-center justify-center">
+        <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8 max-w-sm w-full text-center">
+          <h1 className="text-2xl font-bold text-red-600 dark:text-red-400 mb-4">Acceso Denegado</h1>
+          <p className="text-gray-700 dark:text-gray-300 mb-6">
+            Lo sentimos, solo administradores y directivos pueden acceder a esta página.
+          </p>
+          <a href="/dashboard" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded inline-block">
+            Volver al Dashboard
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   const handleCreateUser = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -160,42 +183,42 @@ export default function CreateUserPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14 text-white dark:text-gray-100">
-      <div className="w-full mx-auto bg-white dark:bg-gray-900 dark:text-gray-100 rounded-lg shadow-md p-6">
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14">
+      <div className="w-full mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md p-6 text-gray-900 dark:text-gray-100">
         
         <div className="mb-10">
           <h1 className="text-3xl font-bold mb-6 text-center">Crear Nuevo Usuario</h1>
           <form onSubmit={handleCreateUser} className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="mb-4">
-              <label htmlFor="name" className="block text-sm font-bold mb-2 dark:text-gray-300">Nombre:</label>
-              <input type="text" id="name" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" value={name} onChange={(e) => setName(e.target.value)} required />
+              <label htmlFor="name" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Nombre:</label>
+              <input type="text" id="name" className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" value={name} onChange={(e) => setName(e.target.value)} required />
             </div>
             <div className="mb-4">
-              <label htmlFor="dni" className="block text-sm font-bold mb-2 dark:text-gray-300">DNI:</label>
+              <label htmlFor="dni" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">DNI:</label>
               <input
                 type="text"
                 id="dni"
-                className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600"
+                className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 value={dni}
                 onChange={(e) => setDni(e.target.value)}
                 required
               />
             </div>
             <div className="mb-4">
-              <label htmlFor="email" className="block text-sm font-bold mb-2 dark:text-gray-300">Email:</label>
-              <input type="email" id="email" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" value={email} onChange={(e) => setEmail(e.target.value)} required />
+              <label htmlFor="email" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Email:</label>
+              <input type="email" id="email" className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" value={email} onChange={(e) => setEmail(e.target.value)} required />
             </div>
             <div className="mb-4">
-              <label htmlFor="password" className="block text-sm font-bold mb-2 dark:text-gray-300">Contraseña:</label>
-              <input type="password" id="password" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" value={password} onChange={(e) => setPassword(e.target.value)} required />
+              <label htmlFor="password" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Contraseña:</label>
+              <input type="password" id="password" className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" value={password} onChange={(e) => setPassword(e.target.value)} required />
             </div>
             <div className="mb-4">
-              <label htmlFor="phone" className="block text-sm font-bold mb-2 dark:text-gray-300">Teléfono:</label>
-              <input type="tel" id="phone" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+              <label htmlFor="phone" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Teléfono:</label>
+              <input type="tel" id="phone" className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" value={phone} onChange={(e) => setPhone(e.target.value)} required />
             </div>
             <div className="mb-4">
-              <label htmlFor="role" className="block text-sm font-bold mb-2 dark:text-gray-300">Rol:</label>
-              <select id="role" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" value={role} onChange={(e) => setRole(e.target.value)}>
+              <label htmlFor="role" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Rol:</label>
+              <select id="role" className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" value={role} onChange={(e) => setRole(e.target.value)}>
                 <option value="ADMIN">Admin</option>
                 <option value="DOCENTE">Docente</option>
                 <option value="ESTUDIANTE">Estudiante</option>
@@ -206,8 +229,8 @@ export default function CreateUserPage() {
             </div>
             {role === 'ESTUDIANTE' && (
               <div className="mb-4 md:col-span-2">
-                <label htmlFor="tutor" className="block text-sm font-bold mb-2 dark:text-gray-300">Asignar Tutor (Opcional):</label>
-                <select id="tutor" className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600" value={tutorId} onChange={(e) => setTutorId(e.target.value)}>
+                <label htmlFor="tutor" className="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Asignar Tutor (Opcional):</label>
+                <select id="tutor" className="shadow appearance-none border border-gray-300 dark:border-gray-600 rounded w-full py-2 px-3 text-gray-900 dark:text-gray-100 bg-white dark:bg-gray-700 leading-tight focus:outline-none focus:shadow-outline" value={tutorId} onChange={(e) => setTutorId(e.target.value)}>
                   <option value="">Ninguno</option>
                   {loadingTutors ? (
                     <option value="" disabled>Cargando tutores...</option>
@@ -221,7 +244,7 @@ export default function CreateUserPage() {
             )}
             <div className="md:col-span-2">
                 {error && <p className="text-red-500 text-xs italic mb-4">{error}</p>}
-                {success && <p className="text-green-500 text-xs italic mb-4">{success}</p>}
+                {success && <p className="text-green-600 dark:text-green-400 text-xs italic mb-4">{success}</p>}
                 <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full cursor-pointer" disabled={loading}>
                   {loading ? 'Creando Usuario...' : 'Crear Usuario'}
                 </button>
@@ -235,11 +258,11 @@ export default function CreateUserPage() {
           <h1 className="text-3xl font-bold mb-6 text-center">Crear Usuarios en Lote</h1>
           {loading && (
             <div className="flex justify-center items-center p-6">
-                <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-12 w-12"></div>
-                <p className="ml-4">Procesando archivo...</p>
+                <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 dark:border-gray-600 h-12 w-12"></div>
+                <p className="ml-4 text-gray-900 dark:text-gray-100">Procesando archivo...</p>
             </div>
           )}
-          <div className={`p-6 border-2 border-dashed rounded-lg text-center dark:border-gray-600 hover:border-blue-500 dark:hover:border-blue-400 transition-colors ${loading ? 'hidden' : ''}`}>
+          <div className={`p-6 border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg text-center hover:border-blue-500 dark:hover:border-blue-400 transition-colors ${loading ? 'hidden' : ''}`}>
             <label htmlFor="bulk-upload" className="cursor-pointer text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 font-semibold flex flex-col items-center">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
