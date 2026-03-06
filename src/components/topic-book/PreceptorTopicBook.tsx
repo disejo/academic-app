@@ -206,29 +206,16 @@ export default function PreceptorTopicBook() {
 
     const fetchAcademicCycles = async () => {
         try {
-            // Get unique academic cycle IDs from topics
-            const uniqueCycleIds = [...new Set(topics.map(topic => topic.academicCycleId))];
-            
-            // Fetch cycle details for each unique ID
-            const cyclesData: AcademicCycle[] = [];
-            for (const cycleId of uniqueCycleIds) {
-                if (cycleId) {
-                    try {
-                        const cycleDoc = await getDoc(doc(db, 'academicCycles', cycleId));
-                        if (cycleDoc.exists()) {
-                            const data = cycleDoc.data();
-                            cyclesData.push({
-                                id: cycleDoc.id,
-                                name: data.name,
-                                isCurrent: data.isActive || false
-                            });
-                        }
-                    } catch (err) {
-                        console.error(`Error al cargar ciclo ${cycleId}:`, err);
-                    }
-                }
-            }
-            
+            const cyclesRef = collection(db, 'academicCycles');
+            const snapshot = await getDocs(cyclesRef);
+            const cyclesData = snapshot.docs.map(doc => {
+                const data = doc.data();
+                return {
+                    id: doc.id,
+                    name: data.name,
+                    isCurrent: data.isActive || false
+                };
+            });
             setAcademicCycles(cyclesData);
             const current = cyclesData.find(cycle => cycle.isCurrent);
             if (current) {
@@ -254,7 +241,7 @@ export default function PreceptorTopicBook() {
     };
 
     const clearTable = async () => {
-        if (confirm('¿Estás seguro de que quieres eliminar todos los temas? Esta acción no se puede deshacer.')) {
+        if (confirm('¿Estás seguro de que quieres vaciar el libro de temas?\nEsta acción no se puede deshacer, todo los datos se perderán.')) {
             try {
                 setLoading(true);
                 const topicsRef = collection(db, 'topic_book');
@@ -541,7 +528,35 @@ export default function PreceptorTopicBook() {
                 </div>
             </div>
         </div>
-        
+                {/* Table Footer with Export Buttons and Delete Button */}
+        <div className="mt-4 flex justify-between items-center">
+            <div className="flex items-center gap-4">
+                <button
+                    onClick={handleDownloadExcel}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors duration-200"
+                    title="Exportar a Excel"
+                >
+                    <Icon path={mdiFileExcel} size={0.8} />
+                    Excel
+                </button>
+                <button
+                    onClick={handleDownloadPdf}
+                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
+                    title="Exportar a PDF"
+                >
+                    <Icon path={mdiFilePdfBox} size={0.8} />
+                    PDF
+                </button>
+            </div>
+            
+            <button
+                onClick={clearTable}
+                className="px-3 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
+                title="Eliminar todos los temas (acción irreversible)"
+            >
+                🗑️ Eliminar tabla completa
+            </button>
+        </div>
         {/* Table */}
         <div className="bg-white dark:bg-gray-700 rounded-lg shadow-md overflow-hidden">
             <div className="overflow-x-auto">
@@ -617,36 +632,7 @@ export default function PreceptorTopicBook() {
                 </table>
             </div>
         </div>
-        
-        {/* Table Footer with Export Buttons and Delete Button */}
-        <div className="mt-4 flex justify-between items-center">
-            <div className="flex items-center gap-4">
-                <button
-                    onClick={handleDownloadExcel}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20 rounded transition-colors duration-200"
-                    title="Exportar a Excel"
-                >
-                    <Icon path={mdiFileExcel} size={0.8} />
-                    Excel
-                </button>
-                <button
-                    onClick={handleDownloadPdf}
-                    className="flex items-center gap-2 px-3 py-2 text-sm text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
-                    title="Exportar a PDF"
-                >
-                    <Icon path={mdiFilePdfBox} size={0.8} />
-                    PDF
-                </button>
-            </div>
-            
-            <button
-                onClick={clearTable}
-                className="px-3 py-1 text-xs text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors duration-200"
-                title="Eliminar todos los temas (acción irreversible)"
-            >
-                🗑️ Eliminar tabla completa
-            </button>
-        </div>
+    
         
         {/* Pagination */}
         {totalPages > 1 && (
