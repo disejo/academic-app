@@ -1,0 +1,92 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
+
+import { useEffect, useState } from 'react';
+import { auth, db } from '@/lib/firebase';
+import { onAuthStateChanged, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
+import { useRouter } from 'next/navigation';
+
+import AdminDashboard from '@/components/dashboard/AdminDashboard';
+import DocenteTopicBook from '@/components/topic-book/DocenteTopicBook';
+import EstudianteDashboard from '@/components/dashboard/EstudianteDashboard';
+import DirectivoTopicBook from '@/components/topic-book/DirectivoTopicBook';
+import PreceptorTopicBook from '@/components/topic-book/PreceptorTopicBook';
+import TutorDashboard from '@/components/tutor/TutorDashboard';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
+
+interface UserProfile {
+  name: string;
+  email: string;
+  role: string;
+}
+
+export default function TopicBookPage() {
+  const [user, setUser] = useState<any>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      if (currentUser) {
+        setUser(currentUser);
+        const docRef = doc(db, 'users', currentUser.uid);
+        const docSnap = await getDoc(docRef);
+        if (docSnap.exists()) {
+          setUserProfile(docSnap.data() as UserProfile);
+        } else {
+          // Handle case where user exists in Auth but not in Firestore
+          console.error("No such document!");
+          // Optionally, sign out the user if their profile is missing
+          await signOut(auth);
+          router.push('/login');
+        }
+      } else {
+        router.push('/login');
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [router]);
+
+
+
+  if (loading) {
+   return (
+    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+      <LoadingSpinner />
+    </div>
+  );
+  }
+
+  if (!user || !userProfile) {
+    return null; // Should redirect to login via useEffect or show loading
+  }
+
+  const renderTopicBook = () => {
+    switch (userProfile.role) {
+      case 'ADMIN':
+        return <AdminDashboard />;
+      case 'DOCENTE':
+        return <DocenteTopicBook />;
+      case 'ESTUDIANTE':
+        return <EstudianteDashboard />;
+      case 'DIRECTIVO':
+        return <DirectivoTopicBook />;
+      case 'PRECEPTOR':
+        return <PreceptorTopicBook />;
+      case 'TUTOR':
+        return <TutorDashboard />;
+      default:
+        return <div>Unknown Role</div>;
+    }
+  };
+
+  return (
+    <>
+      {renderTopicBook()}
+    </>
+  );
+}

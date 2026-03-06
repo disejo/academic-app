@@ -11,6 +11,7 @@ import Icon from '@mdi/react';
 import { mdiLogout } from '@mdi/js';
 import IconComponentEditProfile from '../components/iconWithTootltip/IconComponentEditProfile';
 import IconComponentDashboard from '../components/iconWithTootltip/IconComponentDashboard';
+import IconComponentTopicBook from '../components/iconWithTootltip/IconComponentTopicBook';
 import ThemeToggleButton from './ThemeToggleButton';
 
 
@@ -90,6 +91,9 @@ export default function NavBoard() {
             <div className="flex items-center space-x-6 rtl:space-x-reverse">
               <Link href={'/dashboard'}>
                 <IconComponentDashboard direction={180} path={'/dashboard'} tooltipText={"Dashboard"} />
+              </Link>
+              <Link href={'/topic-book'}>
+                <IconComponentTopicBook direction={180} path={'/topic-book'} tooltipText={"Temas"} />
               </Link>
               <Link href={'/profile'}>
                 <IconComponentEditProfile direction={180} path={'/profile'} tooltipText={"Perfil"} />
