@@ -81,6 +81,9 @@ export default function PreceptorTopicBook() {
     const [pageSize, setPageSize] = useState<number>(50);
     const [currentPage, setCurrentPage] = useState<number>(1);
 
+    // Modal state
+    const [selectedTopic, setSelectedTopic] = useState<TopicBook | null>(null);
+
     const router = useRouter();
 
     useEffect(() => {
@@ -595,7 +598,7 @@ export default function PreceptorTopicBook() {
                             </tr>
                         ) : (
                             paginatedTopics.map((topic) => (
-                                <tr key={topic.id} className="hover:bg-gray-50 dark:hover:bg-gray-600">
+                                <tr key={topic.id} className="hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer" onClick={() => setSelectedTopic(topic)}>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-white">
                                         {topic.date.toLocaleDateString('es-ES', { 
                                             weekday: 'long', 
@@ -656,6 +659,26 @@ export default function PreceptorTopicBook() {
                         className="px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                         Siguiente
+                    </button>
+                </div>
+            </div>
+        )}
+
+        {/* Modal for displaying full topic */}
+        {selectedTopic && (
+            <div className="fixed inset-0 backdrop-blur-md flex items-center justify-center z-50" onClick={() => setSelectedTopic(null)}>
+                <div className="bg-white dark:bg-gray-700 p-6 rounded-lg max-w-lg w-full mx-4 max-h-96 overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+                    <h2 className="text-lg font-bold mb-4 text-gray-900 dark:text-white">Actividades realizadas</h2>
+                    <div className="mb-4">
+                        <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Docente:</strong> {getTeacherName(selectedTopic.teacherId)}</p>
+                        <p className="text-sm text-gray-600 dark:text-gray-400"><strong>Asignatura:</strong> {getSubjectName(selectedTopic.subjectId)}</p>
+                    </div>
+                    <p className="text-gray-900 dark:text-white whitespace-pre-wrap">{selectedTopic.topic}</p>
+                    <button 
+                        onClick={() => setSelectedTopic(null)} 
+                        className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                        Cerrar
                     </button>
                 </div>
             </div>
