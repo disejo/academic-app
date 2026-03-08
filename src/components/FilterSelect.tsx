@@ -143,19 +143,21 @@ const FilterSelect: React.FC<FilterSelectProps> = ({
   };
 
   return (
-    <Select
-      options={inputValue ? selectOptions : []}
-      onChange={handleChange}
-      onInputChange={handleInputChange}
-      inputValue={inputValue}
-      value={getInitialValue()}
-      isMulti={isMulti}
-      placeholder={placeholder}
-      isSearchable={true}
-      styles={colourStyles}
-      classNamePrefix="react-select"
-      noOptionsMessage={() => inputValue ? 'No se encontraron resultados' : 'Escribe para buscar...'}
-    />
+    <div onMouseEnter={() => setInputValue("")}>
+      <Select
+        options={selectOptions}
+        onChange={handleChange}
+        onInputChange={handleInputChange}
+        inputValue={inputValue}
+        value={getInitialValue()}
+        isMulti={isMulti}
+        placeholder={placeholder}
+        isSearchable={true}
+        styles={colourStyles}
+        classNamePrefix="react-select"
+        noOptionsMessage={() => inputValue ? 'No se encontraron resultados' : 'Escribe para buscar...'}
+      />
+    </div>
   );
 };
 

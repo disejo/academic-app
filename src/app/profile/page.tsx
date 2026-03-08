@@ -133,75 +133,75 @@ export default function ProfilePage() {
   };
 
   if (loading) {
-  return (
-    <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
-      <LoadingSpinner />
-    </div>
-  );
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-800 flex justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="w-full p-8 rounded shadow-md bg-white dark:bg-gray-800 dark:text-amber-50">
+    <div className="min-h-screen flex justify-center bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 pt-16 px-4">
+      <div className="w-full p-6 sm:p-8 rounded-xl shadow-2xl bg-white dark:bg-gray-800 dark:text-amber-50 border border-gray-200 dark:border-gray-700">
         
-        {error && <p className="text-red-500 text-center mb-4 p-3 bg-red-100 dark:bg-red-900/20 rounded-md">{error}</p>}
-        {success && <p className="text-green-500 text-center mb-4 p-3 bg-green-100 dark:bg-green-900/20 rounded-md">{success}</p>}
+        {error && <p className="text-red-600 dark:text-red-400 text-center mb-6 p-4 bg-red-50 dark:bg-red-900/20 rounded-lg border border-red-200 dark:border-red-800">{error}</p>}
+        {success && <p className="text-green-600 dark:text-green-400 text-center mb-6 p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-800">{success}</p>}
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 bg-white dark:bg-gray-900 p-8 rounded-md shadow-md text-gray-700 dark:text-white">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 bg-white dark:bg-gray-900 p-6 sm:p-8 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-white">
           {/* Columna Izquierda */}
-          <div className="flex flex-col gap-10">
+          <div className="space-y-8">
             {/* Formulario de Información Personal */}
-            <form onSubmit={handleUpdateProfile}>
-              <h2 className="text-xl font-semibold mb-4">Información Personal</h2>
-              <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-bold mb-2">Nombre:</label>
+            <form onSubmit={handleUpdateProfile} className="space-y-4">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-600 pb-2">Información Personal</h2>
+              <div>
+                <label htmlFor="name" className="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-300">Nombre:</label>
                 <input 
                   type="text" 
                   id="name" 
                   value={name} 
                   onChange={(e) => setName(e.target.value)} 
                   readOnly={!role || !['ADMIN', 'DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(role)}
-                  className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed" 
+                  className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:opacity-50 disabled:cursor-not-allowed transition-all" 
                 />
               </div>
               {role && ['ADMIN', 'DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(role) && (
-                <button type="submit" disabled={isSubmittingProfile} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400">
+                <button type="submit" disabled={isSubmittingProfile} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white p-3 rounded-lg font-semibold transition-colors shadow-md">
                   {isSubmittingProfile ? 'Actualizando...' : 'Actualizar Nombre'}
                 </button>
               )}
             </form>
 
             {/* Formulario de Actualizar Email */}
-            <form onSubmit={handleUpdateEmail}>
-              <h2 className="text-xl font-semibold mb-4">Actualizar Correo Electrónico</h2>
-              <div className="mb-4">
-                <label htmlFor="email" className="block text-sm font-bold mb-2">Nuevo Correo:</label>
-                <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800" />
+            <form onSubmit={handleUpdateEmail} className="space-y-4">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-600 pb-2">Actualizar Correo Electrónico</h2>
+              <div>
+                <label htmlFor="email" className="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-300">Nuevo Correo:</label>
+                <input type="email" id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
               </div>
-              <div className="mb-4">
-                <label htmlFor="currentPasswordEmail" className="block text-sm font-bold mb-2">Contraseña Actual:</label>
-                <input type="password" id="currentPasswordEmail" name="currentPassword" value={emailFormPassword} onChange={(e) => setEmailFormPassword(e.target.value)} className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800" />
+              <div>
+                <label htmlFor="currentPasswordEmail" className="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-300">Contraseña Actual:</label>
+                <input type="password" id="currentPasswordEmail" name="currentPassword" value={emailFormPassword} onChange={(e) => setEmailFormPassword(e.target.value)} className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
               </div>
-              <button type="submit" disabled={isSubmittingEmail} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400">
+              <button type="submit" disabled={isSubmittingEmail} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white p-3 rounded-lg font-semibold transition-colors shadow-md">
                 {isSubmittingEmail ? 'Actualizando...' : 'Actualizar Correo'}
               </button>
             </form>
           </div>
 
           {/* Columna Derecha */}
-          <div className="flex flex-col gap-10">
+          <div className="space-y-8">
             {/* Formulario de Actualizar Contraseña */}
-            <form onSubmit={handleUpdatePassword}>
-              <h2 className="text-xl font-semibold mb-4">Actualizar Contraseña</h2>
-              <div className="mb-4">
-                <label htmlFor="currentPasswordPass" className="block text-sm font-bold mb-2">Contraseña Actual:</label>
-                <input type="password" id="currentPasswordPass" name="currentPassword" value={passwordForm.currentPassword} onChange={handlePasswordFormChange} className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800" />
+            <form onSubmit={handleUpdatePassword} className="space-y-4">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white border-b border-gray-300 dark:border-gray-600 pb-2">Actualizar Contraseña</h2>
+              <div>
+                <label htmlFor="currentPasswordPass" className="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-300">Contraseña Actual:</label>
+                <input type="password" id="currentPasswordPass" name="currentPassword" value={passwordForm.currentPassword} onChange={handlePasswordFormChange} className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
               </div>
-              <div className="mb-4">
-                <label htmlFor="newPassword" className="block text-sm font-bold mb-2">Nueva Contraseña:</label>
-                <input type="password" id="newPassword" name="newPassword" value={passwordForm.newPassword} onChange={handlePasswordFormChange} className="w-full p-2 border rounded bg-gray-50 dark:bg-gray-800" />
+              <div>
+                <label htmlFor="newPassword" className="block text-sm font-semibold mb-2 text-gray-600 dark:text-gray-300">Nueva Contraseña:</label>
+                <input type="password" id="newPassword" name="newPassword" value={passwordForm.newPassword} onChange={handlePasswordFormChange} className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all" />
               </div>
-              <button type="submit" disabled={isSubmittingPassword} className="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:bg-blue-400">
+              <button type="submit" disabled={isSubmittingPassword} className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white p-3 rounded-lg font-semibold transition-colors shadow-md">
                 {isSubmittingPassword ? 'Actualizando...' : 'Actualizar Contraseña'}
               </button>
             </form>
