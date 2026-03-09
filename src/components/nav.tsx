@@ -12,6 +12,7 @@ import { mdiLogout } from '@mdi/js';
 import IconComponentEditProfile from '../components/iconWithTootltip/IconComponentEditProfile';
 import IconComponentDashboard from '../components/iconWithTootltip/IconComponentDashboard';
 import IconComponentTopicBook from '../components/iconWithTootltip/IconComponentTopicBook';
+import IconComponentMessages from '../components/iconWithTootltip/IconComponentMessages';
 import ThemeToggleButton from './ThemeToggleButton';
 
 
@@ -95,6 +96,11 @@ export default function NavBoard() {
               {userProfile && ['DIRECTIVO', 'DOCENTE', 'PRECEPTOR'].includes(userProfile.role) && (
                 <Link href={'/topic-book'}>
                   <IconComponentTopicBook direction={180} path={'/topic-book'} tooltipText={"Temas"} />
+                </Link>
+              )}
+              {userProfile && ['DIRECTIVO', 'PRECEPTOR'].includes(userProfile.role) && (
+                <Link href={'/admin/notifications'}>
+                  <IconComponentMessages direction={180} path={'/admin/notifications'} tooltipText={"Notificaciones"} />
                 </Link>
               )}
               <Link href={'/profile'}>

@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 
 if (!admin.apps.length) {
   try {
+    console.log('Initializing Firebase Admin...');
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
@@ -10,12 +11,12 @@ if (!admin.apps.length) {
       }),
       databaseURL: process.env.FIREBASE_DATABASE_URL, // Add this line
     });
+    console.log('Firebase Admin initialized successfully.');
   } catch (error) {
-    if (error instanceof Error) {
-      console.error("Firebase admin initialization error", error.stack);
-    } else {
-      console.error("Firebase admin initialization error", error);
-    }
+    console.error("Firebase admin initialization error", error.stack);
+    console.error('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'set' : 'NOT SET');
+    console.error('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'set' : 'NOT SET');
+    console.error('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'set' : 'NOT SET');
   }
 }
 

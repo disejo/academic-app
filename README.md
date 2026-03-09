@@ -55,3 +55,19 @@ FIREBASE_PROJECT_ID
 FIREBASE_CLIENT_EMAIL
 
 FIREBASE_PRIVATE_KEY
+
+# Optional notification variables
+
+# SMTP settings used by the email sender (install `nodemailer` first)
+SMTP_HOST
+SMTP_PORT
+SMTP_USER
+SMTP_PASS
+SMTP_FROM
+SMTP_SECURE  # "true" or "false"
+
+# WhatsApp provider example (not implemented by default).  You can wire this up
+# to Twilio, MessageBird, etc.  The default stub simply logs.
+TWILIO_ACCOUNT_SID
+TWILIO_AUTH_TOKEN
+TWILIO_WHATSAPP_FROM
