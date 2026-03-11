@@ -1,73 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Sistema de Gestión Académica
 
-## Getting Started
+Plataforma integral para la gestión académica y escolar construida con Next.js (App Router), React 19 y Firebase.
 
-First, run the development server:
+## 🌟 Características Principales
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Gestión Multi-Rol:** Accesos y paneles dedicados para Administradores, Directivos, Docentes, Estudiantes, Preceptores y Tutores.
+- **Libro de Temas (Topic Book):** Módulo especializado con editor de texto enriquecido (integración con TipTap/Quill).
+- **Backend Serverless:** Autenticación, Base de Datos en Tiempo Real y Almacenamiento gestionados por Firebase y Firebase Admin para operaciones seguras en el servidor.
+- **Generación de Reportes:** Exportación de datos a PDF (`jspdf`) y Excel (`xlsx`).
+- **Visualización de Datos:** Gráficos estadísticos y métricas de desempeño interactivos mediante `recharts`.
+- **Comunicaciones Automatizadas:** Sistema de emails integrado mediante `nodemailer`.
+- **UI Moderna y Responsiva:** Estilizado con TailwindCSS v4 y componentes construidos desde cero.
+
+## 🏗️ Estructura del Proyecto
+
+La arquitectura del proyecto sigue el patrón App Router de Next.js, organizado en la subcarpeta `src/`:
+
+```text
+src/
+├── app/                  # Rutas y páginas (Next.js App Router)
+│   ├── (auth)/           # Flujos de autenticación e inicio de sesión
+│   ├── admin/            # Panel de control de Administración
+│   ├── dashboard/        # Panel principal general
+│   ├── directivo/        # Funciones para el equipo Directivo
+│   ├── docente/          # Portal para Docentes
+│   ├── estudiante/       # Portal para Estudiantes
+│   ├── preceptor/        # Gestión y seguimiento por Preceptores
+│   ├── tutor/            # Perfil para Tutores/Padres de familia
+│   ├── profile/          # Gestión del perfil del usuario
+│   ├── topic-book/       # Libro de temas interactivo
+│   └── api/              # Endpoints API internos (Serverless Functions)
+├── components/           # Componentes de interfaz de usuario reutilizables (UI)
+├── hooks/                # Custom hooks de React para lógica de negocio
+├── lib/                  # Utilidades compartidas y configuración (ej. Firebase init)
+└── modules/              # Lógica de dominio modularizada
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Stack Tecnológico
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Framework:** [Next.js 16](https://nextjs.org/) (React 19)
+- **Estilos:** [TailwindCSS v4](https://tailwindcss.com/)
+- **Base de Datos & Auth:** [Firebase](https://firebase.google.com/) (SDK Cliente y Admin)
+- **Iconografía:** Material Design Icons (`@mdi/react`)
+- **Herramientas de Exportación:** `jspdf`, `jspdf-autotable`, `xlsx`
+- **Gráficos:** `recharts`
+- **Mail:** `nodemailer`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ⚙️ Configuración y Variables de Entorno
 
-## Learn More
+Para ejecutar el proyecto localmente, debes crear un archivo `.env.local` en la raíz del proyecto con las siguientes variables:
 
-To learn more about Next.js, take a look at the following resources:
+### Firebase Client
+```env
+NEXT_PUBLIC_FIREBASE_API_KEY=tu_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=tu_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=tu_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=tu_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=tu_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=tu_app_id
+NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID=tu_measurement_id
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Firebase Admin (Server-side)
+```env
+FIREBASE_PROJECT_ID=tu_project_id
+FIREBASE_CLIENT_EMAIL=tu_client_email
+FIREBASE_PRIVATE_KEY="tu_private_key"
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Configuración SMTP (Emails)
+```env
+SMTP_HOST=smtp.ejemplo.com
+SMTP_PORT=587
+SMTP_USER=usuario_smtp
+SMTP_PASS=password_smtp
+SMTP_FROM=no-reply@tudominio.com
+SMTP_SECURE=false # o "true"
+```
 
-## Deploy on Vercel
+### Configuración WhatsApp (Opcional - Twilio)
+```env
+TWILIO_ACCOUNT_SID=tu_sid
+TWILIO_AUTH_TOKEN=tu_token
+TWILIO_WHATSAPP_FROM=tu_numero_origen
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Instalación y Despliegue
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. Instala las dependencias necesarias:
+```bash
+npm install
+```
 
-# env.local
-NEXT_PUBLIC_FIREBASE_API_KEY
+2. Inicia el servidor de desarrollo en modo Turbopack:
+```bash
+npm run dev
+```
 
-NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+3. Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver la aplicación.
 
-NEXT_PUBLIC_FIREBASE_PROJECT_ID
-
-NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-
-NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-
-NEXT_PUBLIC_FIREBASE_APP_ID
-
-NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-
-FIREBASE_PROJECT_ID
-
-FIREBASE_CLIENT_EMAIL
-
-FIREBASE_PRIVATE_KEY
-
-# Optional notification variables
-
-# SMTP settings used by the email sender (install `nodemailer` first)
-SMTP_HOST
-SMTP_PORT
-SMTP_USER
-SMTP_PASS
-SMTP_FROM
-SMTP_SECURE  # "true" or "false"
-
-# WhatsApp provider example (not implemented by default).  You can wire this up
-# to Twilio, MessageBird, etc.  The default stub simply logs.
-TWILIO_ACCOUNT_SID
-TWILIO_AUTH_TOKEN
-TWILIO_WHATSAPP_FROM
+_Este entorno está diseñado para ser desplegado de manera nativa y rápida en [Vercel](https://vercel.com/new)._
