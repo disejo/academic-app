@@ -37,6 +37,10 @@ export default function DirectivoDashboard() {
     setLoading(true);
     await router.push('/admin/classrooms');
   };
+  const handleClickManagePrograms = async () => {
+    setLoading(true);
+    await router.push('/admin/programs');
+  };
   const handleClickStudentPromotion = async () => {
     setLoading(true);
     await router.push('/admin/student-promotion');
@@ -146,6 +150,14 @@ export default function DirectivoDashboard() {
             className="block items-center justify-center cursor-pointer bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Gestion de Ciclos Academicos'}
+          </button>
+
+          <button
+            onClick={handleClickManagePrograms}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Seleccionar Programas'}
           </button>
 
         </div>
