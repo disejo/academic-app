@@ -1,0 +1,28 @@
+{
+  "approvedBuilds": [
+    {
+      "packageName": "sharp",
+      "version": "0.34.5"
+    },
+    {
+      "packageName": "protobufjs",
+      "version": "7.6.2"
+    },
+    {
+      "packageName": "core-js",
+      "version": "3.49.0"
+    },
+    {
+      "packageName": "@firebase/util",
+      "version": "1.15.1"
+    },
+    {
+      "packageName": "unrs-resolver",
+      "version": "1.12.2"
+    },
+    {
+      "packageName": "postinstall-postinstall",
+      "version": "2.1.0"
+    }
+  ]
+}
