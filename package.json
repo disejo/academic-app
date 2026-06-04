@@ -2,12 +2,13 @@
   "name": "academic-app",
   "version": "0.1.0",
   "private": true,
+  "packageManager": "pnpm@11.5.1",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "postinstall": "npm rebuild lightningcss --verbose"
+    "postinstall": "pnpm rebuild lightningcss"
   },
   "dependencies": {
     "@mdi/js": "^7.4.47",
