@@ -9,11 +9,15 @@ if (!admin.apps.length) {
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
         privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
       }),
-      databaseURL: process.env.FIREBASE_DATABASE_URL, // Add this line
+      databaseURL: process.env.FIREBASE_DATABASE_URL,
     });
     console.log('Firebase Admin initialized successfully.');
   } catch (error) {
-    console.error("Firebase admin initialization error", error.stack);
+    if (error instanceof Error) {
+      console.error("Firebase admin initialization error", error.stack);
+    } else {
+      console.error("Firebase admin initialization error", error);
+    }
     console.error('FIREBASE_PROJECT_ID:', process.env.FIREBASE_PROJECT_ID ? 'set' : 'NOT SET');
     console.error('FIREBASE_CLIENT_EMAIL:', process.env.FIREBASE_CLIENT_EMAIL ? 'set' : 'NOT SET');
     console.error('FIREBASE_PRIVATE_KEY:', process.env.FIREBASE_PRIVATE_KEY ? 'set' : 'NOT SET');
