@@ -1,0 +1,7 @@
+allowBuilds:
+  '@firebase/util': false
+  core-js: true
+  postinstall-postinstall: false
+  protobufjs: true
+  sharp: true
+  unrs-resolver: false

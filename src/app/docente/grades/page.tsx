@@ -441,7 +441,7 @@ export default function DocenteGradesPage() {
                         <input
                         placeholder='T1'
                           type="number"
-                          step="0.5"
+                          step="0.1"
                           min="0"
                           max="10"
                           className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -453,7 +453,7 @@ export default function DocenteGradesPage() {
                         <input
                         placeholder='T2'
                           type="number"
-                          step="0.5"
+                          step="0.1"
                           min="0"
                           max="10"
                           className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
@@ -465,7 +465,7 @@ export default function DocenteGradesPage() {
                         <input
                         placeholder='T3'
                           type="number"
-                          step="0.5"
+                          step="0.1"
                           min="0"
                           max="10"
                           className="w-24 shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline dark:bg-gray-700 dark:text-amber-50 dark:border-gray-600"
