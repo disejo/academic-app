@@ -9,6 +9,8 @@ import { StudentAnalytics } from '@/modules/analytics';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
+export const dynamic = 'force-dynamic';
+
 export default function StudentAnaliticPage() {
   const { user, loading: authLoading } = useAuth();
   const [studentId, setStudentId] = useState('');
