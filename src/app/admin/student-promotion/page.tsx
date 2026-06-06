@@ -2,8 +2,9 @@
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
+import Link from 'next/link';
 import { db } from '@/lib/firebase';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, where,query, orderBy, type QueryDocumentSnapshot } from 'firebase/firestore';
 import { useAuth } from '@/hooks/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
@@ -26,15 +27,28 @@ interface StudyYearOption {
   label: string;
 }
 
-const STUDY_YEARS: StudyYearOption[] = [
+const DEFAULT_STUDY_YEAR_OPTIONS: StudyYearOption[] = [
   { value: '', label: 'Todos los años' },
-  { value: '1', label: '1er Año' },
-  { value: '2', label: '2do Año' },
-  { value: '3', label: '3er Año' },
-  { value: '4', label: '4to Año' },
-  { value: '5', label: '5to Año' },
-  { value: '6', label: '6to Año' },
 ];
+
+function getStudyYearLabel(value: string): string {
+  switch (value) {
+    case '1':
+      return '1er Año';
+    case '2':
+      return '2do Año';
+    case '3':
+      return '3er Año';
+    case '4':
+      return '4to Año';
+    case '5':
+      return '5to Año';
+    case '6':
+      return '6to Año';
+    default:
+      return `${value} Año`;
+  }
+}
 
 function parseStudyYearFromClassroomName(classroomName: string): string {
   const normalized = classroomName.toLowerCase();
@@ -87,6 +101,7 @@ export default function StudentPromotionPage() {
   const [academicCycles, setAcademicCycles] = useState<AcademicCycle[]>([]);
   const [selectedCycleId, setSelectedCycleId] = useState('');
   const [selectedStudyYear, setSelectedStudyYear] = useState('');
+  const [studyYearOptions, setStudyYearOptions] = useState<StudyYearOption[]>(DEFAULT_STUDY_YEAR_OPTIONS);
   const [searchTerm, setSearchTerm] = useState('');
   const [enrolledStudents, setEnrolledStudents] = useState<StudentRow[]>([]);
   const [filteredStudents, setFilteredStudents] = useState<StudentRow[]>([]);
@@ -113,6 +128,8 @@ export default function StudentPromotionPage() {
       if (!selectedCycleId) {
         setEnrolledStudents([]);
         setFilteredStudents([]);
+        setStudyYearOptions(DEFAULT_STUDY_YEAR_OPTIONS);
+        setSelectedStudyYear('');
         setStudentsError(null);
         return;
       }
@@ -144,16 +161,50 @@ export default function StudentPromotionPage() {
           });
         }
 
-        const rows: StudentRow[] = enrollments.map((enrollment) => ({
-          enrollmentId: enrollment.id,
-          studentId: enrollment.studentId,
-          studentName: enrollment.studentName || '',
-          studentDni: enrollment.dni || enrollment.studentDni || '',
-          classroomId: enrollment.classroomId,
-          classroomName: classroomNames.get(enrollment.classroomId) || '',
-        }));
+        const studentIds = Array.from(
+          new Set(enrollments.map((enrollment) => enrollment.studentId).filter(Boolean))
+        );
+        const studentDataMap = new Map<string, { name?: string; dni?: string }>();
+        const studentChunks = chunkArray(studentIds, 10);
+
+        for (const chunk of studentChunks) {
+          const usersQuery = query(collection(db, 'users'), where('__name__', 'in', chunk));
+          const usersSnapshot = await getDocs(usersQuery);
+          usersSnapshot.forEach((doc) => {
+            const data = doc.data();
+            studentDataMap.set(doc.id, {
+              name: data.name || '',
+              dni: data.dni || '',
+            });
+          });
+        }
+
+        const rows: StudentRow[] = enrollments.map((enrollment) => {
+          const studentData = studentDataMap.get(enrollment.studentId) || {};
+          return {
+            enrollmentId: enrollment.id,
+            studentId: enrollment.studentId,
+            studentName: enrollment.studentName || studentData.name || '',
+            studentDni: studentData.dni || enrollment.dni || enrollment.studentDni || '',
+            classroomId: enrollment.classroomId,
+            classroomName: classroomNames.get(enrollment.classroomId) || '',
+          };
+        });
+
+        const uniqueYears = Array.from(
+          new Set(rows.map((row) => parseStudyYearFromClassroomName(row.classroomName)).filter(Boolean))
+        ).sort((a, b) => Number(a) - Number(b));
+
+        const yearOptions: StudyYearOption[] = [
+          ...DEFAULT_STUDY_YEAR_OPTIONS,
+          ...uniqueYears.map((year) => ({ value: year, label: getStudyYearLabel(year) })),
+        ];
 
         setEnrolledStudents(rows);
+        setStudyYearOptions(yearOptions);
+        if (!yearOptions.some((option) => option.value === selectedStudyYear)) {
+          setSelectedStudyYear('');
+        }
         setSelectedStudentId(null);
       } catch (error) {
         console.error('Error fetching enrolled students:', error);
@@ -200,17 +251,17 @@ export default function StudentPromotionPage() {
     setSelectedStudentId((current) => (current === studentId ? null : studentId));
   };
 
-  const handleSendSelectedStudents = () => {
-    if (!selectedStudentId) return;
-    console.log('Enviando estudiante seleccionado al hook:', selectedStudentId);
-    alert(`Estudiante seleccionado: ${selectedStudentId}`);
-  };
+  
 
   if (authLoading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white dark:bg-gray-800">
+        <LoadingSpinner />
+      </div>
+    );
   }
 
-  if (!user || !user.role || !['ADMIN', 'DIRECTIVO'].includes(user.role)) {
+  if (!user || !user.role || !['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role)) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14 flex items-center justify-center">
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8 max-w-sm w-full text-center">
@@ -266,7 +317,7 @@ export default function StudentPromotionPage() {
                 className="bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 rounded-md"
                 disabled={!selectedCycleId}
               >
-                {STUDY_YEARS.map((year) => (
+                {studyYearOptions.map((year) => (
                   <option key={year.value} value={year.value}>
                     {year.label}
                   </option>
@@ -296,14 +347,6 @@ export default function StudentPromotionPage() {
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Estudiantes Filtrados</h2>
               <p className="text-sm text-gray-600 dark:text-gray-300">{filteredStudents.length} estudiante(s) encontrados.</p>
             </div>
-            <button
-              type="button"
-              onClick={handleSendSelectedStudents}
-              disabled={!selectedStudentId}
-              className="inline-flex items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:bg-blue-400 disabled:cursor-not-allowed"
-            >
-              Enviar selección
-            </button>
           </div>
 
           {loadingStudents ? (
@@ -319,7 +362,6 @@ export default function StudentPromotionPage() {
               <table className="min-w-full border-separate border-spacing-0 text-left">
                 <thead className="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
                   <tr>
-                    <th className="p-3 border border-gray-200 dark:border-gray-700 w-12">Sel.</th>
                     <th className="p-3 border border-gray-200 dark:border-gray-700">Nombre</th>
                     <th className="p-3 border border-gray-200 dark:border-gray-700">DNI</th>
                     <th className="p-3 border border-gray-200 dark:border-gray-700">Aula</th>
@@ -330,15 +372,13 @@ export default function StudentPromotionPage() {
                   {filteredStudents.map((student) => (
                     <tr key={student.enrollmentId} className="odd:bg-white even:bg-gray-50 dark:odd:bg-gray-900 dark:even:bg-gray-800">
                       <td className="p-3 border border-gray-200 dark:border-gray-700">
-                        <input
-                          type="radio"
-                          name="selectedStudent"
-                          checked={selectedStudentId === student.studentId}
-                          onChange={() => handleSelectStudent(student.studentId)}
-                          className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
+                        <Link
+                          href={`/admin/student-promotion/student-analitic?studentId=${encodeURIComponent(student.studentId)}`}
+                          className="text-blue-600 dark:text-blue-400 hover:underline"
+                        >
+                          {student.studentName || 'Sin nombre'}
+                        </Link>
                       </td>
-                      <td className="p-3 border border-gray-200 dark:border-gray-700">{student.studentName}</td>
                       <td className="p-3 border border-gray-200 dark:border-gray-700">{student.studentDni || '-'}</td>
                       <td className="p-3 border border-gray-200 dark:border-gray-700">{student.classroomName || 'Desconocida'}</td>
                       <td className="p-3 border border-gray-200 dark:border-gray-700">{parseStudyYearFromClassroomName(student.classroomName) || '-'}</td>
