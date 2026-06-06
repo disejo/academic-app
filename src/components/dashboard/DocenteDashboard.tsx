@@ -43,6 +43,10 @@ export default function DocenteDashboard() {
     setLoading(true);
     await router.push('/docente/programs');
   };
+  const handleClickStudentPromotion = async () => {
+    setLoading(true);
+    await router.push('/admin/student-promotion');
+  };
 
   useEffect(() => {
     // Simulate loading for the main dashboard, as sub-components fetch their own data
@@ -95,6 +99,13 @@ export default function DocenteDashboard() {
             className="block items-center justify-center cursor-pointer bg-green-800 hover:bg-green-900 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
           >
             {loading ? 'Cargando...' : 'Gestionar Programas'}
+          </button>
+          <button
+            onClick={handleClickStudentPromotion}
+            disabled={loading}
+            className="block items-center justify-center cursor-pointer bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg w-full transition duration-300 text-center"
+          >
+            {loading ? 'Cargando...' : 'Promoción de Estudiantes'}
           </button>
         </div>
       </div>

@@ -10,12 +10,14 @@ import { saveAs } from 'file-saver';
 // @ts-ignore
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import { useAuth } from '@/hooks/useAuth';
 
 interface Props {
   studentId: string;
 }
 
 export default function StudentAnalytics({ studentId }: Props) {
+  const { user } = useAuth();
   const [cycles, setCycles] = useState<{ id: string; name?: string }[]>([]);
   const [cyclesLoading, setCyclesLoading] = useState<boolean>(true);
   const [activeCycleId, setActiveCycleId] = useState<string | null>(null);
@@ -196,19 +198,26 @@ export default function StudentAnalytics({ studentId }: Props) {
                   <td className="p-2 border">
                     <div className="flex items-center gap-2">
                       <span>{s.trimesterGrades[1] ?? '-'}</span>
-                      <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 1)}>Editar</button>
+                      {/* Solo mostrar el boton edit a role docente, preceptor, directivo o admin */}
+                      {user?.role && ['DOCENTE'].includes(user.role) && (
+                        <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 1)}>Editar</button>
+                      )}
                     </div>
                   </td>
                   <td className="p-2 border">
                     <div className="flex items-center gap-2">
                       <span>{s.trimesterGrades[2] ?? '-'}</span>
-                      <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 2)}>Editar</button>
+                      {user?.role && ['DOCENTE'].includes(user.role) && (
+                        <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 2)}>Editar</button>
+                      )}
                     </div>
                   </td>
                   <td className="p-2 border">
                     <div className="flex items-center gap-2">
                       <span>{s.trimesterGrades[3] ?? '-'}</span>
-                      <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 3)}>Editar</button>
+                      {user?.role && ['DOCENTE'].includes(user.role) && (
+                        <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 3)}>Editar</button>
+                      )}
                     </div>
                   </td>
                   <td className="p-2 border">{s.average !== null && s.average !== undefined ? s.average.toFixed(2) : '-'}</td>
@@ -231,7 +240,9 @@ export default function StudentAnalytics({ studentId }: Props) {
                         {found ? (
                           <div className="flex items-center gap-2">
                             <span>{found.grade}</span>
-                            <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditExam(s, found)}>Editar</button>
+                            {user?.role && ['DOCENTE'].includes(user.role) && (
+                              <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditExam(s, found)}>Editar</button>
+                            )}
                           </div>
                         ) : (
                           <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => { setModalSubject({ subjectId: s.subjectId, subjectName: s.subjectName }); setModalExistingExam(null); setModalOpen(true); }}>
@@ -242,7 +253,9 @@ export default function StudentAnalytics({ studentId }: Props) {
                     );
                   })}
                   <td className="p-2 border">
-                    <button className="px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white rounded text-sm hover:opacity-95" onClick={() => openAddExam(s)}>Agregar examen</button>
+                    {user?.role && ['DIRECTIVO','PRECEPTOR','DOCENTE'].includes(user.role) && (
+                      <button className="px-2 py-1 bg-blue-600 dark:bg-blue-500 text-white rounded text-sm hover:opacity-95" onClick={() => openAddExam(s)}>Agregar examen</button>
+                    )}
                   </td>
                 </tr>
               ))}

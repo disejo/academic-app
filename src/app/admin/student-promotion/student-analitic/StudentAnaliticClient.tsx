@@ -55,7 +55,7 @@ export default function StudentAnaliticClient() {
     );
   }
 
-  if (!user || !user.role || !['ADMIN', 'DIRECTIVO', 'PRECEPTOR'].includes(user.role)) {
+  if (!user || !user.role || !['ADMIN', 'DIRECTIVO', 'PRECEPTOR', 'DOCENTE'].includes(user.role)) {
     return (
       <div className="min-h-screen bg-gray-100 dark:bg-gray-800 p-4 sm:p-6 lg:p-8 mt-14 flex items-center justify-center">
         <div className="bg-white dark:bg-gray-900 rounded-lg shadow-md p-8 max-w-sm w-full text-center">
