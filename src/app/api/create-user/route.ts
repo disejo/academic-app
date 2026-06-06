@@ -12,6 +12,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    if (!adminAuth || !adminDb) {
+      console.error('CREATE-USER API: Firebase Admin is not initialized.');
+      return NextResponse.json({ error: 'Firebase Admin initialization failed' }, { status: 500 });
+    }
+
     console.log(`CREATE-USER API: Creating user ${email} in Firebase Auth...`);
     const userRecord = await adminAuth.createUser({
       email,
