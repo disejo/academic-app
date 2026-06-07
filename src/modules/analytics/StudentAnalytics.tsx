@@ -85,6 +85,20 @@ export default function StudentAnalytics({ studentId }: Props) {
     if (activeCycleId) fetchCycleAnalytics(studentId, activeCycleId).then((d) => setAnalytics(d));
   };
 
+  const canEditTrimesterGrade = (trimester: number, s: SubjectAnalytics) => {
+    if (user?.role !== 'DOCENTE') return false;
+    const entry = s.trimesterGradeEntries?.[trimester];
+    return !entry?.teacherId || entry.teacherId === user.uid;
+  };
+
+  const saveGradeWithTeacher = async (payload: { studentId: string; subjectId: string; academicCycleId: string; trimester: number; grade: number | null; }) => {
+    return await saveTrimesterGrade({
+      ...payload,
+      teacherId: user?.uid ?? undefined,
+      editorId: user?.uid ?? undefined,
+    });
+  };
+
   const exportCSV = () => {
     if (!analytics) return;
     const header = ['Materia','T1','T2','T3','Promedio','Estado','Exámenes'];
@@ -198,8 +212,7 @@ export default function StudentAnalytics({ studentId }: Props) {
                   <td className="p-2 border">
                     <div className="flex items-center gap-2">
                       <span>{s.trimesterGrades[1] ?? '-'}</span>
-                      {/* Solo mostrar el boton edit a role docente, preceptor, directivo o admin */}
-                      {user?.role && ['DOCENTE'].includes(user.role) && (
+                      {canEditTrimesterGrade(1, s) && (
                         <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 1)}>Editar</button>
                       )}
                     </div>
@@ -207,7 +220,7 @@ export default function StudentAnalytics({ studentId }: Props) {
                   <td className="p-2 border">
                     <div className="flex items-center gap-2">
                       <span>{s.trimesterGrades[2] ?? '-'}</span>
-                      {user?.role && ['DOCENTE'].includes(user.role) && (
+                      {canEditTrimesterGrade(2, s) && (
                         <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 2)}>Editar</button>
                       )}
                     </div>
@@ -215,7 +228,7 @@ export default function StudentAnalytics({ studentId }: Props) {
                   <td className="p-2 border">
                     <div className="flex items-center gap-2">
                       <span>{s.trimesterGrades[3] ?? '-'}</span>
-                      {user?.role && ['DOCENTE'].includes(user.role) && (
+                      {canEditTrimesterGrade(3, s) && (
                         <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditGrade(s, 3)}>Editar</button>
                       )}
                     </div>
@@ -226,7 +239,14 @@ export default function StudentAnalytics({ studentId }: Props) {
                     {s.exams && s.exams.length > 0 ? (
                       <ul className="space-y-1">
                         {s.exams.map((e) => (
-                          <li key={e.id} className="text-sm">{new Date(e.examDate).toLocaleDateString()} — <button className="text-blue-600 dark:text-blue-400" onClick={() => openEditExam(s, e)}>{e.grade}</button></li>
+                          <li key={e.id} className="text-sm">
+                            {new Date(e.examDate).toLocaleDateString()} —
+                            {user?.role === 'DOCENTE' && (!e.teacherId || e.teacherId === user.uid) ? (
+                              <button className="text-blue-600 dark:text-blue-400" onClick={() => openEditExam(s, e)}>{e.grade}</button>
+                            ) : (
+                              <span className="ml-1">{e.grade}</span>
+                            )}
+                          </li>
                         ))}
                       </ul>
                     ) : (
@@ -240,7 +260,7 @@ export default function StudentAnalytics({ studentId }: Props) {
                         {found ? (
                           <div className="flex items-center gap-2">
                             <span>{found.grade}</span>
-                            {user?.role && ['DOCENTE'].includes(user.role) && (
+                            {user?.role === 'DOCENTE' && (!found.teacherId || found.teacherId === user.uid) && (
                               <button className="text-xs text-blue-600 dark:text-blue-400" onClick={() => openEditExam(s, found)}>Editar</button>
                             )}
                           </div>
@@ -276,11 +296,11 @@ export default function StudentAnalytics({ studentId }: Props) {
             if (modalExistingExam && modalExistingExam.id) {
               // update existing
               const updated = { ...modalExistingExam, ...payload } as any;
-              await updateExamRecord(updated);
+              await updateExamRecord(updated, user?.uid);
               handleSavedExam(updated as ExamRecord);
               return updated as ExamRecord;
             }
-            const res = await saveExamRecord(payload);
+            const res = await saveExamRecord({ ...payload, teacherId: user?.uid });
             handleSavedExam(res);
             return res;
           }}
@@ -297,7 +317,7 @@ export default function StudentAnalytics({ studentId }: Props) {
           academicCycleId={activeCycleId ?? ''}
           trimester={gradeModalInfo.trimester}
           initialGrade={gradeModalInfo.initial}
-          onSave={saveTrimesterGrade}
+          onSave={saveGradeWithTeacher}
           onSaved={() => { if (activeCycleId) fetchCycleAnalytics(studentId, activeCycleId).then((d) => setAnalytics(d)); }}
         />
       )}

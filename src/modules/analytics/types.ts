@@ -5,6 +5,7 @@ export interface GradeEntry {
   academicCycleId: string;
   trimester?: number; // 1,2,3
   grade?: number | null;
+  teacherId?: string;
   createdAt?: any;
 }
 
@@ -16,6 +17,7 @@ export interface ExamRecord {
   examDate: string; // ISO
   grade: number;
   note?: string;
+  teacherId?: string;
   createdAt?: any;
 }
 
@@ -23,6 +25,7 @@ export interface SubjectAnalytics {
   subjectId: string;
   subjectName: string;
   trimesterGrades: Record<number, number | null>; // 1,2,3
+  trimesterGradeEntries?: Record<number, GradeEntry | null>;
   average?: number | null;
   passed?: boolean;
   exams?: ExamRecord[];

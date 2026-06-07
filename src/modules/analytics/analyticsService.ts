@@ -2,15 +2,17 @@ import { db } from '@/lib/firebase';
 import {
   collection,
   getDocs,
+  getDoc,
   query,
   where,
   orderBy,
   addDoc,
+  updateDoc,
+  doc as docRef,
   type QueryDocumentSnapshot,
 } from 'firebase/firestore';
 import { chunkArray } from './utils';
 import type { CycleAnalytics, SubjectAnalytics, GradeEntry, ExamRecord } from './types';
-import { updateDoc, doc as docRef } from 'firebase/firestore';
 
 export async function fetchAcademicCyclesForStudent(studentId: string) {
   const enrollRef = collection(db, 'classroom_enrollments');
@@ -76,8 +78,12 @@ export async function fetchCycleAnalytics(studentId: string, academicCycleId: st
   const subjectsAnalytics: SubjectAnalytics[] = subjectIds.map((sid) => {
     const related = grades.filter((g) => g.subjectId === sid);
     const trimesterGrades: Record<number, number | null> = { 1: null, 2: null, 3: null };
+    const trimesterGradeEntries: Record<number, GradeEntry | null> = { 1: null, 2: null, 3: null };
     related.forEach((g) => {
-      if (g.trimester && [1, 2, 3].includes(g.trimester)) trimesterGrades[g.trimester] = g.grade ?? null;
+      if (g.trimester && [1, 2, 3].includes(g.trimester)) {
+        trimesterGrades[g.trimester] = g.grade ?? null;
+        trimesterGradeEntries[g.trimester] = g;
+      }
     });
 
     const presentGrades = Object.values(trimesterGrades).filter((v) => v !== null) as number[];
@@ -88,6 +94,7 @@ export async function fetchCycleAnalytics(studentId: string, academicCycleId: st
       subjectId: sid,
       subjectName: subjectsMap.get(sid) || '',
       trimesterGrades,
+      trimesterGradeEntries,
       average,
       passed,
       exams: [],
@@ -120,9 +127,14 @@ export async function saveExamRecord(record: Omit<ExamRecord, 'id' | 'createdAt'
   return { id: res.id, ...payload } as ExamRecord;
 }
 
-export async function updateExamRecord(record: ExamRecord) {
+export async function updateExamRecord(record: ExamRecord, editorId?: string) {
   if (!record.id) throw new Error('Exam id required to update');
   const ref = docRef(db, 'exam_grades', record.id);
+  const existingDoc = await getDoc(ref);
+  if (!existingDoc.exists()) throw new Error('Exam record not found');
+  const existing = existingDoc.data() as any;
+  if (existing.teacherId && !editorId) throw new Error('No autorizado para editar esta nota de examen');
+  if (existing.teacherId && editorId !== existing.teacherId) throw new Error('No autorizado para editar esta nota de examen');
   await updateDoc(ref, { grade: record.grade, examDate: record.examDate, note: record.note ?? '' });
   return record;
 }
@@ -133,6 +145,8 @@ export async function saveTrimesterGrade(payload: {
   academicCycleId: string;
   trimester: number;
   grade: number | null;
+  teacherId?: string;
+  editorId?: string;
 }) {
   // search for existing grade doc
   const gradesRef = collection(db, 'grades');
@@ -146,19 +160,26 @@ export async function saveTrimesterGrade(payload: {
   const snap = await getDocs(qWhere);
   if (snap.docs.length > 0) {
     const doc = snap.docs[0];
+    const existing = doc.data() as any;
+    if (existing.teacherId && !payload.editorId) throw new Error('No autorizado para editar esta nota');
+    if (existing.teacherId && payload.editorId !== existing.teacherId) throw new Error('No autorizado para editar esta nota');
+
     const ref = docRef(db, 'grades', doc.id);
     await updateDoc(ref, { grade: payload.grade });
-    return { id: doc.id, ...(doc.data() as any), grade: payload.grade } as GradeEntry;
+    return { id: doc.id, ...existing, grade: payload.grade } as GradeEntry;
   }
 
-  const res = await addDoc(gradesRef, {
+  const now = new Date().toISOString();
+  const createdGrade = {
     studentId: payload.studentId,
     subjectId: payload.subjectId,
     academicCycleId: payload.academicCycleId,
     trimester: payload.trimester,
     grade: payload.grade,
-    createdAt: new Date().toISOString(),
-  } as any);
+    teacherId: payload.teacherId ?? payload.editorId ?? null,
+    createdAt: now,
+  } as any;
 
-  return { id: res.id, ...payload } as GradeEntry;
+  const res = await addDoc(gradesRef, createdGrade);
+  return { id: res.id, ...createdGrade } as GradeEntry;
 }
